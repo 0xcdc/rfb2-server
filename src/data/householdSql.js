@@ -47,7 +47,7 @@ export function loadAllHouseholds(ids) {
     household.clients.push(client);
     household.householdSize = household.clients.length;
   });
-  if(ids.length === 0) {
+  if (ids.length === 0) {
     return Array.from(householdMap.values());
   } else {
     return Array.from(ids.map(id => householdMap.get(id)));
@@ -67,7 +67,7 @@ const saveHouseholdTransaction = database.transaction(household => {
     household.version = incrementHouseholdVersion(household.id);
     database.update('household', household);
   }
-})
+});
 
 export function updateHousehold(household) {
   saveHouseholdTransaction(household);

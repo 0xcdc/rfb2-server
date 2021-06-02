@@ -32,5 +32,5 @@ export const resolvers = {
     updateClient: (parent, args, context, info) => updateClient(args.client),
     deleteClient: (parent, args, context, info) => deleteClient(args.id),
     updateHousehold: (parent, args, context, info) => updateHousehold(args.household),
-  }
+  },
 };

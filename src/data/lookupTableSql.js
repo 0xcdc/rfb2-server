@@ -1,7 +1,7 @@
 import database from './root';
 
 export function lookupSet(tableName, id) {
-  if(id || id === 0) {
+  if (id || id === 0) {
     return lookupItem(tableName, id);
   }
 
