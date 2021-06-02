@@ -26,17 +26,59 @@ export const typeDefs = gql`
     note: String
   },
 
+  type Household {
+    id: Int!
+    version: Int!
+    address1: String!
+    address2: String!
+    cityId: Int!
+    zip: String!
+    incomeLevelId: Int!
+    householdSize: String!
+    note: String!
+    clients: [Client]
+    city: City!
+  }
+
+  type LookupTable {
+    id: Int!
+    value: String!
+  }
+
+  type Visit {
+    id: Int!
+    householdId: Int!
+    householdVersion: Int!
+    date: String!
+  }
+
   type Query {
     city(id: Int!): City,
     cities: [City],
     client(id: Int!): Client,
     clients: [Client],
-  }
+    household(id: Int!, version: Int): Household,
+    households(ids: [Int!]!): [Household],
+    ethnicities: [LookupTable],
+    ethnicity(id: Int!): LookupTable,
+    firstVisitsForYear(year: Int!): [Visit],
+    gender(id: Int!): LookupTable,
+    genders: [LookupTable],
+    incomeLevel(id: Int!): LookupTable,
+    incomeLevels: [LookupTable],
+    militaryStatus(id: Int!): LookupTable,
+    militaryStatuses: [LookupTable],
+    race(id: Int!): LookupTable,
+    races: [LookupTable],
+    visitsForHousehold(householdId: Int!): [Visit],
+    visitsForMonth(year: Int!, month: Int!): [Visit],
+    yesNo(id: Int!): LookupTable,
+    yesNos: [LookupTable],
+   }
 
   input ClientInput {
       id: Int!
-      householdId: Int!
-      name: Stringi!
+      name: String!
       disabled: Int!
       raceId: Int!
       birthYear: String!
@@ -45,14 +87,21 @@ export const typeDefs = gql`
       speaksEnglish: Int!
       militaryStatusId: Int!
       ethnicityId: Int!
-      householdSize: Int!
-      cardColor: String!
-      lastVisit: String!
-      note: String!
+  }
+
+  input HouseholdInput {
+    id: Int!
+    address1: String!
+    address2: String!
+    cityId: Int!
+    zip: String!
+    incomeLevelId: Int!
+    note: String!
   }
 
   type Mutation {
-    updateClient(client: ClientInput): Client,
+    updateClient(client: ClientInput!): Client,
     deleteClient(id: Int!): Client,
+    updateHousehold(household: HouseholdInput!): Household
   }
 `;
