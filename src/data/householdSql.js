@@ -1,8 +1,8 @@
-import database from './root';
+import { loadAllCities, loadCityById } from './citySql';
 import { loadAllClients, loadClientsForHouseholdId } from './clientSql';
-import { loadCityById, loadAllCities } from './citySql';
-import { recordVisit } from './visitSql';
+import database from './root';
 import { incrementHouseholdVersion } from './increment';
+import { recordVisit } from './visitSql';
 
 function selectById({ id, version }) {
   const sql = `
@@ -10,13 +10,13 @@ function selectById({ id, version }) {
     from household
     where household.id = :id
       and version = :version`;
-  const household = database.all(sql, { id, version });
+  const [household] = database.all(sql, { id, version });
 
   return household;
 }
 
 function loadById({ id, version }) {
-  const household = selectById({ id, version })[0];
+  const household = selectById({ id, version });
   household.city = loadCityById(household.cityId);
   household.clients = loadClientsForHouseholdId(id, household.version);
   return household;

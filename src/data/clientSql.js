@@ -140,10 +140,10 @@ const deleteClientTransaction = database.transaction(client => {
 export function updateClient(client) {
   saveClientTransaction(client);
   return loadClientById(client.id);
-};
+}
 
 export function deleteClient(id) {
   const client = loadClientById(id);
   deleteClientTransaction(client);
   return client;
-};
+}

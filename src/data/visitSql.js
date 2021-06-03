@@ -69,13 +69,13 @@ export function visitsForMonth(year, month) {
 const recordVisitTransaction = database.transaction(obj => {
   const id = pullNextKey('visit');
 
-  const { householdVersion } = database.all(
+  const [{ householdVersion }] = database.all(
     `
     select max(version) as householdVersion
     from household
     where id = :householdId`,
     obj,
-  )[0];
+  );
 
   return database.insert('visit', { ...obj, id, householdVersion });
 });

@@ -5,6 +5,7 @@ module.exports = {
   },
   'extends': [
     'google',
+    'eslint:recommended',
   ],
   'parserOptions': {
     'ecmaVersion': 12,
@@ -19,5 +20,8 @@ module.exports = {
       "SwitchCase": 1,
     }],
     "arrow-parens": ["error", "as-needed"],
+    "prefer-destructuring": "error",
+    "sort-imports": "error",
+    "no-use-before-define": "error",
   },
 };

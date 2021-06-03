@@ -94,12 +94,12 @@ database.getMaxVersion = database.transaction((tableName, id) => {
     { id },
   );
 
-  let version = 1;
   if (rows.length > 0) {
-    version = rows[0].version;
+    const [{ version }] = rows;
+    return version;
+  } else {
+    return 1;
   }
-
-  return version;
 });
 
 /* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["obj"] }] */

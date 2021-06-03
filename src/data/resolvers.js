@@ -1,9 +1,9 @@
-import { loadAllCities, loadCityById } from './citySql';
 import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql';
+import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql';
+import { loadAllCities, loadCityById } from './citySql';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql';
 import { lookupSet } from './lookupTableSql';
 import { pullNextKey } from './root';
-import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql';
 
 export const resolvers = {
   Query: {
