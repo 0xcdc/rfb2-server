@@ -1,8 +1,9 @@
 import { loadAllCities, loadCityById } from './citySql';
-import { loadAllClients, loadClientById, updateClient, deleteClient } from './clientSql';
+import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql';
 import { lookupSet } from './lookupTableSql';
-import { firstVisitsForYear, visitsForHousehold, visitsForMonth } from './visitSql';
+import { pullNextKey } from './root';
+import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql';
 
 export const resolvers = {
   Query: {
@@ -29,8 +30,11 @@ export const resolvers = {
     yesNos: (parent, args, context, info) => lookupSet('yes_no'),
   },
   Mutation: {
-    updateClient: (parent, args, context, info) => updateClient(args.client),
     deleteClient: (parent, args, context, info) => deleteClient(args.id),
+    deleteVisit: (parent, args, context, info) => deleteVisit(args.id),
+    nextKey: (parent, args, context, info) => pullNextKey(args.tableName),
+    recordVisit: (parent, args, context, info) => recordVisit(args.householdId, args.year, args.month, args.day),
+    updateClient: (parent, args, context, info) => updateClient(args.client),
     updateHousehold: (parent, args, context, info) => updateHousehold(args.household),
   },
 };
