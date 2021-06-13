@@ -78,6 +78,7 @@ export const typeDefs = gql`
 
   input ClientInput {
       id: Int!
+      householdId: Int!
       name: String!
       disabled: Int!
       raceId: Int!
