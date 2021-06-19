@@ -1,6 +1,6 @@
-import { gql } from 'apollo-server';
+import { buildSchema } from 'graphql';
 
-export const typeDefs = gql`
+export const typeDefs = buildSchema(`
   type City {
     id: Int!
     name: String!
@@ -108,4 +108,4 @@ export const typeDefs = gql`
     updateClient(client: ClientInput!): Client,
     updateHousehold(household: HouseholdInput!): Household
   }
-`;
+`);
