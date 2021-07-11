@@ -20,5 +20,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../../rfb2-client/build', 'index.html'));
 });
 
-app.listen(4000);
-console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+var port = process.env.PORT || 4000;
+
+app.listen(port);
+console.log('Running a GraphQL API server at http://localhost:' + port + '/graphql');
