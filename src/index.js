@@ -7,7 +7,7 @@ import { typeDefs } from './types';
 
 const app = express();
 // Have Node serve the files for our built React app
-app.use(express.static(path.resolve(__dirname, '../../rfb2-client/build')));
+app.use(express.static(path.resolve(__dirname, '../../rfb2-client-app/build')));
 
 app.use('/graphql', graphqlHTTP({
   schema: typeDefs,
@@ -17,7 +17,7 @@ app.use('/graphql', graphqlHTTP({
 
 // All other GET requests not handled before will return our React app
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../rfb2-client/build', 'index.html'));
+  res.sendFile(path.resolve(__dirname, '../../rfb2-client-app/build', 'index.html'));
 });
 
 var port = process.env.PORT || 4000;
