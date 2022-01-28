@@ -1,0 +1,2 @@
+@reboot sh -c '/Users/foodbanklaptop1/github/rfb2-server/start.sh'
+0/5 * * * * bash -l '/Users/foodbanklaptop1/github/rfb2-server/backups/backupDatabase.sh' >/tmp/crontab_stdout.log 2>/tmp/crontab_stderr.log

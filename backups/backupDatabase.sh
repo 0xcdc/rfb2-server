@@ -1,5 +1,4 @@
-dateStr=`date -Idate`
-
+dateStr=`date "+%Y-%m-%d"`
 
 function compressFile {
   filename=$1
@@ -7,17 +6,17 @@ function compressFile {
 
   if [ -e $filename ] && [ ! -e $compressedFilename ]; then
     echo "compressing $filename"
-    p7zip $filename
+    /opt/homebrew/bin/7z a -sdel $filename.7z $filename
   fi
 }
 
 function dumpDatabase {
-  dumpFilename="/home/charlie/backup/backups/$dateStr.dump"
+  dumpFilename="$HOME/backups/$dateStr.dump"
   compressedFilename="$dumpFilename.7z"
 
   if [ ! -e $dumpFilename ] && [ ! -e $compressedFilename ]; then
-    echo "dumping database";
-    sqlite3 ~/github/rfb-client-app/database.sqlite .dump > "$dumpFilename";
+    echo "dumping database to $dumpFilename";
+    sqlite3 $HOME/github/rfb2-server/database.sqlite .dump > $dumpFilename
   fi
 
   compressFile $dumpFilename $compressedFilename
@@ -25,4 +24,4 @@ function dumpDatabase {
 
 dumpDatabase
 
-python3 /home/charlie/backup/uploadBackup.py
+python3 ~/github/rfb2-server/backups/uploadBackup.py

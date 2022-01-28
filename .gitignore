@@ -24,3 +24,7 @@ yarn-error.log*
 
 # don't check in the database
 database.sqlite
+
+#don't check in the google api files
+backups/credentials.json
+backups/token.json
