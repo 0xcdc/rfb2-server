@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.example.srv</string>
+
+  <key>Program</key>
+	<string>/Users/foodbanklaptop1/github/rfb2-server/backups/backupDatabase.sh</string>
+
+  <key>StandardOutPath</key>
+	<string>/tmp/test.stdout</string>
+
+  <key>Username</key>
+  <string>foodbanklaptop1</string>
+
+  <key>StartInterval</key>
+  <integer>15</integer>
+</dict>
+</plist>
