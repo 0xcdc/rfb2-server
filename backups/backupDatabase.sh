@@ -1,3 +1,4 @@
+#!/bin/bash -l
 host=`hostname`
 host=${host%.local}
 
