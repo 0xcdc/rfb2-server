@@ -3,18 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.RFB.backupDatabase</string>
+	<string>com.RFB.launchServer</string>
 
   <key>Program</key>
-	<string>/Users/foodbanklaptop1/github/rfb2-server/backups/backupDatabase.sh</string>
+	<string>/Users/foodbanklaptop1/github/rfb2-server/start.sh</string>
 
   <key>StandardOutPath</key>
-	<string>/tmp/com.RFB.backupDatabase.stdout</string>
+	<string>/tmp/com.RFB.launchServer.stdout</string>
+
+  <key>StandardErrorPath</key>
+	<string>/tmp/com.RFB.launchServer.stderr</string>
 
   <key>Username</key>
   <string>foodbanklaptop1</string>
 
-  <key>StartInterval</key>
-  <integer>15</integer>
+  <key>RunAtLoad</key>
+  <true/>
 </dict>
 </plist>
