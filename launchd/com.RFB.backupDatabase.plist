@@ -6,13 +6,13 @@
 	<string>com.RFB.backupDatabase</string>
 
   <key>Program</key>
-	<string>/Users/foodbanklaptop1/github/rfb2-server/backups/backupDatabase.sh</string>
+	<string>/Users/admin/github/rfb2-server/backups/backupDatabase.sh</string>
 
   <key>StandardOutPath</key>
 	<string>/tmp/com.RFB.backupDatabase.stdout</string>
 
   <key>Username</key>
-  <string>foodbanklaptop1</string>
+  <string>admin</string>
 
   <key>StartInterval</key>
   <integer>15</integer>

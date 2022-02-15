@@ -6,7 +6,7 @@
 	<string>com.RFB.launchServer</string>
 
   <key>Program</key>
-	<string>/Users/foodbanklaptop1/github/rfb2-server/start.sh</string>
+	<string>/Users/admin/github/rfb2-server/start.sh</string>
 
   <key>StandardOutPath</key>
 	<string>/tmp/com.RFB.launchServer.stdout</string>
@@ -15,7 +15,7 @@
 	<string>/tmp/com.RFB.launchServer.stderr</string>
 
   <key>Username</key>
-  <string>foodbanklaptop1</string>
+  <string>admin</string>
 
   <key>RunAtLoad</key>
   <true/>
