@@ -26,3 +26,5 @@ compressedFilename="$HOME/My Drive/backups/$compressedFilename"
 
 echo "restoring from $compressedFilename"
 /opt/homebrew/bin/7z x -so "$compressedFilename" | sqlite3 $HOME/github/rfb2-server/database.sqlite
+sudo launchctl stop com.RFB.launchServer
+sudo launchctl start  com.RFB.launchServer
