@@ -10,10 +10,10 @@ select *
     join household
       on household.id = households_visited_last_year.id and
          household.version = households_visited_last_year.version
-    left join household_client_list hcl
+    join household_client_list hcl
       on household.id = hcl.householdId and
          household.version = hcl.householdVersion
-    left join client
+    join client
       on client.id= hcl.clientId and
          client.version = hcl.clientVersion
     group by cityId
@@ -26,21 +26,21 @@ select id,
   coalesce(data."Refugee / Immigrant No", 0) as "Refugee / Immigrant No",
   coalesce(data."Unknown", 0) as "Unknown"
 from data
-where break_out = 1
+where break_out = 1 and id <> 0
 union all
 select 100, 'Other KC',
   sum(data."Refugee / Immigrant Yes"),
   sum(data."Refugee / Immigrant No"),
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 1
+where break_out = 0 and in_king_county = 1 and id <> 0
 union all
 select 101, 'Outside KC',
   sum(data."Refugee / Immigrant Yes"),
   sum(data."Refugee / Immigrant No"),
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 0
+where break_out = 0 and in_king_county = 0 and id <> 0
 union all
 select 102, 'Unknown',
   sum(data."Refugee / Immigrant Yes"),

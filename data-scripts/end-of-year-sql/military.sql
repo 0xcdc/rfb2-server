@@ -11,10 +11,10 @@ select *
     join household
       on household.id = households_visited_last_year.id and
          household.version = households_visited_last_year.version
-    left join household_client_list hcl
+    join household_client_list hcl
       on household.id = hcl.householdId and
          household.version = hcl.householdVersion
-    left join client
+    join client
       on client.id= hcl.clientId and
          client.version = hcl.clientVersion
     group by cityId
@@ -28,7 +28,7 @@ select id,
   coalesce(data."None", 0) as "None",
   coalesce(data."Unknown", 0) as "Unknown"
 from data
-where break_out = 1
+where break_out = 1 and id <> 0
 union all
 select 100, 'Other KC',
   sum(data."US Military Service (past or present)"),
@@ -36,7 +36,7 @@ select 100, 'Other KC',
   sum(data."None"),
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 1
+where break_out = 0 and in_king_county = 1 and id <> 0
 union all
 select 101, 'Outside KC',
   sum(data."US Military Service (past or present)"),
@@ -44,7 +44,7 @@ select 101, 'Outside KC',
   sum(data."None"),
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 0
+where break_out = 0 and in_king_county = 0 and id <> 0
 union all
 select 102, 'Unknown',
   sum(data."US Military Service (past or present)"),

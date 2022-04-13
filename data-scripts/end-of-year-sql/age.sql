@@ -20,10 +20,10 @@ with data as (
         join household
           on household.id = households_visited_last_year.id and
              household.version = households_visited_last_year.version
-        left join household_client_list hcl
+        join household_client_list hcl
           on household.id = hcl.householdId and
              household.version = hcl.householdVersion
-        left join client
+        join client
           on client.id= hcl.clientId and
              client.version = hcl.clientVersion
       )
@@ -45,7 +45,7 @@ select id,
   coalesce(data."85+", 0) as "85+",
   coalesce(data."Unknown", 0) as "Unknown"
 from data
-where break_out = 1
+where break_out = 1 and id <> 0
 union all
 select 100, 'Other KC',   sum(data."0 - 5") as "0 - 5",
   sum(data."6 - 12") as "6 - 12",
@@ -58,7 +58,7 @@ select 100, 'Other KC',   sum(data."0 - 5") as "0 - 5",
   sum(data."85+") as "85+",
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 1
+where break_out = 0 and in_king_county = 1 and id <> 0
 union all
 select 101, 'Outside KC', sum(data."0 - 5") as "0 - 5",
   sum(data."6 - 12") as "6 - 12",
@@ -71,7 +71,7 @@ select 101, 'Outside KC', sum(data."0 - 5") as "0 - 5",
   sum(data."85+") as "85+",
   sum(data."Unknown") as "Unknown"
 from data
-where break_out = 0 and in_king_county = 0
+where break_out = 0 and in_king_county = 0 and id <> 0
 union all
 select 102, 'Unknown', sum(data."0 - 5") as "0 - 5",
   sum(data."6 - 12") as "6 - 12",

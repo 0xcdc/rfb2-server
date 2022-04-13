@@ -24,17 +24,17 @@ select id,
   coalesce(data."$40,000 - <$64,000", 0) as "$40,000 - <$64,000",
   coalesce(data.">$64,000", 0) as ">$64,000"
 from data
-where break_out = 1
+where break_out = 1 and id <> 0
 union all
-select 100, 'Other KC', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data."$40,000 - <$64,000")
+select 100, 'Other KC', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data.">$64,000")
 from data
-where break_out = 0 and in_king_county = 1
+where break_out = 0 and in_king_county = 1 and id <> 0
 union all
-select 101, 'Outside KC', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data."$40,000 - <$64,000")
+select 101, 'Outside KC', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data.">$64,000")
 from data
-where break_out = 0 and in_king_county = 0
+where break_out = 0 and in_king_county = 0 and id <> 0
 union all
-select 102, 'Unknown', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data."$40,000 - <$64,000")
+select 102, 'Unknown', sum(data.Unknown), sum(data."<$24,000"), sum(data."$24,000 - <$40,000"),sum(data."$40,000 - <$64,000"),sum(data.">$64,000")
 from data
 where id = 0
 order by id;

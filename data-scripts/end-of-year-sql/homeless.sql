@@ -18,15 +18,15 @@ select id,
   coalesce(data."Homeless", 0) as "Homeless",
   coalesce(data."Not Homeless", 0) as "Not Homeless"
 from data
-where break_out = 1
+where break_out = 1 and id <> 0
 union all
 select 100, 'Other KC', sum(data.Homeless), sum(data."Not Homeless")
 from data
-where break_out = 0 and in_king_county = 1
+where break_out = 0 and in_king_county = 1 and id <> 0
 union all
 select 101, 'Outside KC', sum(data.Homeless), sum(data."Not Homeless")
 from data
-where break_out = 0 and in_king_county = 0
+where break_out = 0 and in_king_county = 0 and id <> 0
 union all
 select 102, 'Unknown', sum(data.Homeless), sum(data."Not Homeless")
 from data
