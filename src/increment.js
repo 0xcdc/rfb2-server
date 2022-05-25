@@ -1,6 +1,8 @@
 import database from './root';
 
-export const incrementHouseholdVersion = database.transaction(householdId => {
+export const incrementHouseholdVersion = householdId => { console.log("not implemented"); }
+
+/*database.transaction(householdId => {
   database.run(
     `
     insert into household (id, version, address1, address2, cityId, zip, note, incomeLevelId)
@@ -30,5 +32,6 @@ export const incrementHouseholdVersion = database.transaction(householdId => {
 
   return householdVersion;
 });
+*/
 
 export { incrementHouseholdVersion as default };

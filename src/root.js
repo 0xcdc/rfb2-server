@@ -1,19 +1,35 @@
-import Database from 'better-sqlite3';
-const databaseUrl = 'database.sqlite';
-const database = new Database(databaseUrl, { verbose: console.info });
+import mysql from 'mysql2';
 
-database.all = (sql, params) => {
-  try {
-    const stmt = database.prepare(sql);
-    const p = params || {};
-    return stmt.all(p);
-  } catch (error) {
-    console.error({ sql, params, error });
-    throw error;
+class Database {
+  createConnection() {
+    let connection= mysql.createConnection({
+      host: 'localhost',
+      user: 'sammy',
+      password: 'password',
+      database: 'foodbank',
+    });
+    connection.config.namedPlaceholders = true;
+    return connection;
   }
-};
+
+  all(sql, params) {
+    const p = params || {};
+    console.log( sql );
+    let connection = this.createConnection();
+    return connection.promise()
+      .execute(sql, p)
+      .then( ([rows, fields]) => {
+        return rows;
+      })
+      .catch(err => console.error(err))
+      .finally(connection.end());
+  }
+}
+
+const database = new Database();
 
 database.run = (sql, params) => {
+  throw("run not implemented");
   const p = params || {};
 
   try {
@@ -26,6 +42,7 @@ database.run = (sql, params) => {
 };
 
 database.insert = (tablename, values) => {
+  throw("insert not implemented");
   const keys = Object.keys(values);
   const info = database.run(
     `
@@ -37,6 +54,7 @@ database.insert = (tablename, values) => {
 };
 
 database.update = (tablename, values) => {
+  throw("update not implemented");
   const keys = Object.keys(values);
   const hasVersion = keys.includes('version');
   const versionSql = hasVersion ? 'and version = :version' : '';
@@ -51,6 +69,7 @@ database.update = (tablename, values) => {
 };
 
 database.delete = (tablename, { id, version }) => {
+  throw("delete not implemented");
   const isVersioned = version && true;
   const versionSQL = isVersioned ? 'and version = :version' : '';
   const info = database.run(
@@ -64,28 +83,28 @@ database.delete = (tablename, { id, version }) => {
   return info;
 };
 
-export const pullNextKey = database.transaction(tableName => {
-  database.run(
+database.pullNextKey = (tableName) => {
+  throw("pullNextKey not implemented");
+  database.query(
     `
     update keys
       set next_key = next_key + 1
-      where tablename = :tableName
-    `,
-    { tableName },
-  );
+      where tablename = '${tableName}';
 
-  const rows = database.all(
-    `
     select next_key
     from keys
-    where tablename = :tableName`,
-    { tableName },
+    where tablename = '${tableName}';`,
+    (error, results, fields) => {
+      if(error) {
+        console.error({error});
+      }
+      console.log(results);
+      return results[0].next_key;
+    }
   );
+};
 
-  return rows[0].next_key;
-});
-
-database.getMaxVersion = database.transaction((tableName, id) => {
+/*database.getMaxVersion = database.transaction((tableName, id) => {
   const rows = database.all(
     `
     select max(version) as version
@@ -101,9 +120,10 @@ database.getMaxVersion = database.transaction((tableName, id) => {
     return 1;
   }
 });
-
+*/
 /* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["obj"] }] */
 database.upsert = (tableName, obj, options) => {
+  throw("upsert not implemented");
   const isVersioned = options && options.isVersioned && true;
 
   // first, if it's a new row (id == -1) then we need to pull a new key and do an insert

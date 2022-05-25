@@ -29,7 +29,7 @@ function addHouseholdInfo(clientList) {
 }
 
 export function loadAllClients() {
-  const clients = database.all(
+  const query = database.all(
     `
     SELECT c.*, h.note, lv.lastVisit
     FROM client c
@@ -55,18 +55,20 @@ export function loadAllClients() {
   );
 
   // group the clients by householdId
-  const households = new Map();
-  clients.forEach(client => {
-    const list = households.get(client.householdId) || [];
-    list.push(client);
-    households.set(client.householdId, list);
-  });
+  return query.then( clients => {
+    const households = new Map();
+    clients.forEach(client => {
+      const list = households.get(client.householdId) || [];
+      list.push(client);
+      households.set(client.householdId, list);
+    });
 
-  households.forEach(group => {
-    addHouseholdInfo(group);
-  });
+    households.forEach(group => {
+      addHouseholdInfo(group);
+    });
 
-  return clients;
+    return clients;
+  });
 }
 
 export function loadClientById(id) {
@@ -96,7 +98,7 @@ export function loadClientsForHouseholdId(householdId, householdVersion) {
   return clients;
 }
 
-const saveClientTransaction = database.transaction(client => {
+/*const saveClientTransaction = database.transaction(client => {
   const isNewClient = client.id === -1;
   const householdVersion = incrementHouseholdVersion(client.householdId);
 
@@ -135,7 +137,7 @@ const deleteClientTransaction = database.transaction(client => {
     { ...client, householdVersion },
   );
 });
-
+*/
 
 export function updateClient(client) {
   saveClientTransaction(client);

@@ -58,7 +58,7 @@ export function loadHouseholdById(id, version) {
   const v = version || database.getMaxVersion('household', id);
   return loadById({ id, version: v });
 }
-
+/*
 const saveHouseholdTransaction = database.transaction(household => {
   if (household.id === -1) {
     database.upsert('household', household, { isVersioned: true });
@@ -68,7 +68,7 @@ const saveHouseholdTransaction = database.transaction(household => {
     database.update('household', household);
   }
 });
-
+*/
 export function updateHousehold(household) {
   saveHouseholdTransaction(household);
   return loadById(household);

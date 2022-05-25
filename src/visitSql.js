@@ -66,7 +66,7 @@ export function visitsForMonth(year, month) {
 }
 
 /* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["obj"] }] */
-const recordVisitTransaction = database.transaction(obj => {
+/*const recordVisitTransaction = database.transaction(obj => {
   const id = pullNextKey('visit');
 
   const [{ householdVersion }] = database.all(
@@ -79,7 +79,7 @@ const recordVisitTransaction = database.transaction(obj => {
 
   return database.insert('visit', { ...obj, id, householdVersion });
 });
-
+*/
 export function recordVisit(householdId, year, month, day) {
   let date = new Date();
   if (year && month && day) {
