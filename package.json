@@ -6,27 +6,31 @@
   "scripts": {
     "start": "babel-node src/index.js",
     "eslint": "eslint src/**",
-    "migration": "npx babel-node data-scripts/migrations/migrations.js"
+    "migration": "babel-node data-scripts/migrations/migrations.js",
+    "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "eslint": "^7.27.0",
+    "chai": "^4.3.6",
+    "eslint": "^8.16.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.23.4",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0"
+    "eslint-plugin-promise": "^6.0.0",
+    "mocha": "^10.0.0",
+    "supertest": "^6.2.3"
   },
   "dependencies": {
-    "@babel/cli": "^7.14.3",
-    "@babel/core": "^7.14.3",
-    "@babel/node": "^7.14.2",
-    "@babel/preset-env": "^7.14.4",
-    "express": "^4.17.1",
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.18.2",
+    "@babel/node": "^7.17.10",
+    "@babel/preset-env": "^7.18.2",
+    "express": "^4.18.1",
     "express-graphql": "^0.12.0",
-    "graphql": "^15.5.0",
+    "graphql": "^16.5.0",
     "mysql2": "^2.3.3"
   }
 }
