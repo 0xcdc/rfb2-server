@@ -20,7 +20,7 @@ where id = :id`,
     { id },
   );
 
-  return cities[0];
+  return cities.then(v=> { return v[0]});
 }
 
 
