@@ -1,4 +1,5 @@
 import mysql from 'mysql2';
+
 class LoggingConnection {
   constructor(conn) {
     if (!conn) throw Error('connection needed');
@@ -53,7 +54,7 @@ class LoggingConnection {
   }
 
   release(pool) {
-    pool.releaseConnection(this.connection);
+    this.connection.release();
     this.connection = null;
   }
 
@@ -137,6 +138,9 @@ class Database {
     return this.withConnection( conn => conn.all(sql, params));
   }
 
+  getMaxVersion(tableName, id) {
+    return this.withConnection( conn => conn.getMaxVersion(tableName, id));
+  }
 
   transaction(fn) {
     return this.pool.promise().getConnection()
@@ -147,7 +151,7 @@ class Database {
           .then(result => conn.commit().then( () => result))
           .catch( err => {
             console.error(err);
-            return conn.rollback();
+            throw err;
           }).finally( () => {
             conn.release(this.pool);
           });
@@ -161,11 +165,13 @@ class Database {
         return fn(conn)
           .catch( err => {
             console.error(err);
+            throw err;
           })
           .finally(() => {
             conn.release(this.pool);
           });
-      });
+      })
+      .catch( err => { console.error(err); throw err });
   }
 }
 
@@ -188,4 +194,5 @@ database.delete = (tablename, { id, version }) => {
   return info;
 };
 */
+
 export default database;
