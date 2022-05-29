@@ -1,28 +1,178 @@
 import mysql from 'mysql2';
+class LoggingConnection {
+  constructor(conn) {
+    if(!conn) throw "connection needed";
+    this.connection = conn;
+  }
+
+  all(sql, params) {
+    return this.execute(sql, params)
+      .then( ([rows, fields]) => {
+        return rows;
+      });
+  }
+
+  beginTransaction() {
+    console.log("-------BEGIN TRAN--------");
+    return this.connection.beginTransaction();
+  }
+
+  commit() {
+    console.log("--------COMMIT-----------");
+    return this.connection.commit();
+  }
+
+  execute(sql, params) {
+    let p = params || {};
+    console.log(sql);
+    console.log(p);
+    return this.connection.execute(sql, p)
+      .catch(err => console.error(err))
+  }
+
+  getMaxVersion(tableName, id) {
+    console.log('getMaxVersion');
+    return this.all(
+      `
+      select max(version) as version
+      from ${tableName}
+      where id = :id`,
+      { id },
+    ).then( rows => {
+      if (rows.length > 0) {
+        const [{ version }] = rows;
+        return version;
+      } else {
+        return 1;
+      }
+    });
+  }
+
+  insert(tablename, values) {
+    const keys = Object.keys(values);
+    return this.execute(
+      `
+      insert into ${tablename} (${keys.join(', ')})
+        values(${keys.map(k => `:${k}`).join(', ')})`,
+      values,
+    );
+  }
+
+  release(pool) {
+    pool.releaseConnection(this.connection);
+    this.connection = null;
+  }
+
+
+  pullNextKey(tableName) {
+    return this.execute(
+      `
+      update \`keys\`
+        set next_key = next_key + 1
+        where tablename = '${tableName}'`)
+    .then( () => {
+      return this.execute(
+      `
+      select next_key
+        from \`keys\`
+        where tablename = '${tableName}';`)})
+    .then( ([results]) => results[0].next_key);
+  }
+
+  rollback() {
+    console.log("--------ROLLBACK-------");
+    return this.connection.rollback();
+  }
+
+  update(tablename, values) {
+    const keys = Object.keys(values);
+    const hasVersion = keys.includes('version');
+    const versionSql = hasVersion ? 'and version = :version' : '';
+    const updateColumns = keys.filter(v => v !== 'id' && v !== 'versoin');
+    const sql = `
+      update ${tablename}
+        set ${updateColumns.map(k => `${k}=$${k}`).join(',\n        ')}
+        where id = $id
+          ${versionSql}`;
+    return this.execute(sql, values);
+  };
+
+
+  upsert(tableName, obj, options) {
+    console.log('upsert');
+    const isVersioned = options && options.isVersioned && true;
+
+    // first, if it's a new row (id == -1) then we need to pull a new key and do an insert
+    let dbOps = null;
+    if (obj.id === -1) {
+      dbOps = this.pullNextKey(tableName)
+        .then( nextKey => {
+          obj.id = nextKey;
+          if (isVersioned) {
+            obj.version = 1;
+          }
+          return this.insert(tableName, obj);
+        });
+    } else if (isVersioned) {
+      // versioned rows are inserts, but we will need to calculate the next version number for the id
+      dbOps = this.getMaxVersion(tableName, obj.id)
+        .then( maxVersion => {
+          obj.version = maxVersion  + 1;
+          return this.insert(tableName, obj);
+        });
+    } else {
+      // vanilla update
+      dbOps = this.update(tableName, obj);
+    }
+    return dbOps.then( () => obj.id);
+  }
+
+}
 
 class Database {
-  createConnection() {
-    let connection= mysql.createConnection({
+  pool = mysql.createPool({
       host: 'localhost',
       user: 'sammy',
       password: 'password',
       database: 'foodbank',
-    });
-    connection.config.namedPlaceholders = true;
-    return connection;
-  }
+      namedPlaceholders: true,
+   });
 
   all(sql, params) {
-    const p = params || {};
-    console.log( sql );
-    let connection = this.createConnection();
-    return connection.promise()
-      .execute(sql, p)
-      .then( ([rows, fields]) => {
-        return rows;
+    return this.withConnection( conn => conn.all(sql, params));
+  }
+
+
+  transaction(fn) {
+    return this.pool.promise().getConnection()
+      .then( conn => {
+        conn = new LoggingConnection(conn);
+        return conn.beginTransaction()
+          .then( () => {
+            return fn(conn);
+          }).then((result) => {
+            return conn.commit().then( () => result);
+          }).catch((err) => {
+            console.error(err);
+            conn.rollback()
+          }).finally(() => {
+            conn.release(this.pool);
+          });
+      });
+  }
+
+  withConnection(fn) {
+    return this.pool.promise().getConnection()
+      .then( conn => {
+        conn = new LoggingConnection(conn);
+        return fn(conn)
+          .catch((err) => {
+            console.error(err);
+          })
+          .finally(() => {
+            conn.release(this.pool);
+          });
       })
-      .catch(err => console.error(err))
-      .finally(connection.end());
   }
 }
 
@@ -41,32 +191,6 @@ database.run = (sql, params) => {
   }
 };
 
-database.insert = (tablename, values) => {
-  throw("insert not implemented");
-  const keys = Object.keys(values);
-  const info = database.run(
-    `
-    insert into ${tablename} (${keys.join(', ')})
-      values(${keys.map(k => `$${k}`).join(', ')})`,
-    values,
-  );
-  return info.lastInsertRowid;
-};
-
-database.update = (tablename, values) => {
-  throw("update not implemented");
-  const keys = Object.keys(values);
-  const hasVersion = keys.includes('version');
-  const versionSql = hasVersion ? 'and version = :version' : '';
-  const updateColumns = keys.filter(v => v !== 'id' && v !== 'versoin');
-  const sql = `
-    update ${tablename}
-      set ${updateColumns.map(k => `${k}=$${k}`).join(',\n        ')}
-      where id = $id
-        ${versionSql}`;
-  const info = database.run(sql, values);
-  return info;
-};
 
 database.delete = (tablename, { id, version }) => {
   throw("delete not implemented");
@@ -81,67 +205,6 @@ database.delete = (tablename, { id, version }) => {
   );
 
   return info;
-};
-
-database.pullNextKey = (tableName) => {
-  throw("pullNextKey not implemented");
-  database.query(
-    `
-    update keys
-      set next_key = next_key + 1
-      where tablename = '${tableName}';
-
-    select next_key
-    from keys
-    where tablename = '${tableName}';`,
-    (error, results, fields) => {
-      if(error) {
-        console.error({error});
-      }
-      console.log(results);
-      return results[0].next_key;
-    }
-  );
-};
-
-/*database.getMaxVersion = database.transaction((tableName, id) => {
-  const rows = database.all(
-    `
-    select max(version) as version
-    from ${tableName}
-    where id = :id`,
-    { id },
-  );
-
-  if (rows.length > 0) {
-    const [{ version }] = rows;
-    return version;
-  } else {
-    return 1;
-  }
-});
-*/
-/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["obj"] }] */
-database.upsert = (tableName, obj, options) => {
-  throw("upsert not implemented");
-  const isVersioned = options && options.isVersioned && true;
-
-  // first, if it's a new row (id == -1) then we need to pull a new key and do an insert
-  if (obj.id === -1) {
-    obj.id = pullNextKey(tableName);
-    if (isVersioned) {
-      obj.version = 1;
-    }
-    database.insert(tableName, obj);
-  } else if (isVersioned) {
-    // versioned rows are inserts, but we will need to calculate the next version number for the id
-    obj.version = database.getMaxVersion(tableName, obj.id) + 1;
-    database.insert(tableName, obj);
-  } else {
-    // vanilla update
-    database.update(tableName, obj);
-  }
-  return obj.id;
 };
 
 export default database;
