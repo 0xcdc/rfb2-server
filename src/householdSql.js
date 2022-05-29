@@ -5,7 +5,7 @@ import { incrementHouseholdVersion } from './increment';
 import { recordVisit } from './visitSql';
 
 function selectById({ id, version }) {
-  version = version ? new Promise(version) : database.getMaxVersion('household', id);
+  version = version ? Promise.resolve(version) : database.getMaxVersion('household', id);
   const sql = `
     select *
     from household
@@ -72,18 +72,20 @@ export function loadAllHouseholds(ids) {
 export function loadHouseholdById(id, version) {
   return loadById({ id, version });
 }
-/*
-const saveHouseholdTransaction = database.transaction(household => {
-  if (household.id === -1) {
-    database.upsert('household', household, { isVersioned: true });
-    recordVisit(household.id);
-  } else {
-    household.version = incrementHouseholdVersion(household.id);
-    database.update('household', household);
-  }
-});
-*/
+
 export function updateHousehold(household) {
-  saveHouseholdTransaction(household);
-  return loadById(household);
+  return database.transaction(conn => {
+    let dbOp = null;
+    if (household.id === -1) {
+      dbOp = conn.upsert('household', household, { isVersioned: true })
+        .then( () => recordVisit({ conn, householdId: household.id }));
+    } else {
+      dbOp = incrementHouseholdVersion(conn, household.id)
+        .then( version => {
+          household.version = version;
+          return conn.update('household', household);
+        });
+    }
+    return dbOp;
+  }).then( () => loadById(household));
 }
