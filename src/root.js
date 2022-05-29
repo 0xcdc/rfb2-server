@@ -86,8 +86,8 @@ class LoggingConnection {
     const updateColumns = keys.filter(v => v !== 'id' && v !== 'versoin');
     const sql = `
       update ${tablename}
-        set ${updateColumns.map(k => `${k}=$${k}`).join(',\n        ')}
-        where id = $id
+        set ${updateColumns.map(k => `${k}=:${k}`).join(',\n        ')}
+        where id = :id
           ${versionSql}`;
     return this.execute(sql, values);
   }
