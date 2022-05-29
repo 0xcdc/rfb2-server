@@ -171,7 +171,10 @@ class Database {
             conn.release(this.pool);
           });
       })
-      .catch( err => { console.error(err); throw err });
+      .catch( err => {
+        console.error(err);
+        throw err;
+      });
   }
 }
 
