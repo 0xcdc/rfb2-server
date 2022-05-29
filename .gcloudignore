@@ -20,3 +20,4 @@ backups/
 data-scripts/
 launchd/
 node_modules/
+test/
