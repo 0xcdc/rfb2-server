@@ -5,21 +5,33 @@ import { incrementHouseholdVersion } from './increment';
 import { recordVisit } from './visitSql';
 
 function selectById({ id, version }) {
+  version = version ? new Promise(version) : database.getMaxVersion('household', id);
   const sql = `
     select *
     from household
     where household.id = :id
       and version = :version`;
-  const [household] = database.all(sql, { id, version });
-
-  return household;
+  return version
+    .then( version => database.all(sql, { id, version }))
+    .then( rows => rows?.[0]);
 }
 
 function loadById({ id, version }) {
-  const household = selectById({ id, version });
-  household.city = loadCityById(household.cityId);
-  household.clients = loadClientsForHouseholdId(id, household.version);
-  return household;
+  return selectById({ id, version })
+    .then( household => {
+      if ( household ) {
+        return loadCityById(household.cityId)
+          .then( city => household.city = city)
+          .then( () => loadClientsForHouseholdId(id, household.version))
+          .then( clients => {
+            household.clients = clients;
+            household.householdSize = clients.length;
+          })
+          .then( () => household);
+      } else {
+        return null;
+      }
+    });
 }
 
 export function loadAllHouseholds(ids) {
@@ -36,27 +48,29 @@ export function loadAllHouseholds(ids) {
   const clients = loadAllClients();
   const cities = loadAllCities();
 
-  const citiesMap = new Map(cities.map(city => [city.id, city]));
-  const householdMap = new Map(
-    households.map(h => [h.id, { ...h, city: citiesMap.get(h.cityId) }]),
-  );
+  return Promise.all([households, clients, cities])
+    .then( ([households, clients, cities]) => {
+      const citiesMap = new Map(cities.map(city => [city.id, city]));
+      const householdMap = new Map(
+        households.map(h => [h.id, { ...h, city: citiesMap.get(h.cityId) }]),
+      );
 
-  clients.forEach(client => {
-    const household = householdMap.get(client.householdId);
-    if (!household.clients) household.clients = [];
-    household.clients.push(client);
-    household.householdSize = household.clients.length;
-  });
-  if (ids.length === 0) {
-    return Array.from(householdMap.values());
-  } else {
-    return Array.from(ids.map(id => householdMap.get(id)));
-  }
+      clients.forEach(client => {
+        const household = householdMap.get(client.householdId);
+        if (!household.clients) household.clients = [];
+        household.clients.push(client);
+        household.householdSize = household.clients.length;
+      });
+      if (ids.length === 0) {
+        return Array.from(householdMap.values());
+      } else {
+        return Array.from(ids.map(id => householdMap.get(id)));
+      }
+    });
 }
 
 export function loadHouseholdById(id, version) {
-  const v = version || database.getMaxVersion('household', id);
-  return loadById({ id, version: v });
+  return loadById({ id, version });
 }
 /*
 const saveHouseholdTransaction = database.transaction(household => {

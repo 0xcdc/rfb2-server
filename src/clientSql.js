@@ -3,8 +3,7 @@ import { incrementHouseholdVersion } from './increment';
 
 function addHouseholdInfo(clientList) {
   clientList.forEach(client => {
-    const c = client;
-    c.householdSize = clientList.length;
+    client.householdSize = clientList.length;
 
     function cardColor(count) {
       switch (count) {
@@ -24,7 +23,7 @@ function addHouseholdInfo(clientList) {
       }
     }
 
-    c.cardColor = cardColor(c.householdSize);
+    client.cardColor = cardColor(client.householdSize);
   });
   return clientList;
 }
