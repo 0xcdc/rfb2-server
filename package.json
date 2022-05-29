@@ -7,7 +7,8 @@
     "start": "babel-node src/index.js",
     "eslint": "eslint src/**",
     "migration": "babel-node data-scripts/migrations/migrations.js",
-    "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js"
+    "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
+    "debug-start": "npx nodemon --exec babel-node src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.0.0",
     "mocha": "^10.0.0",
+    "nodemon": "^2.0.16",
     "supertest": "^6.2.3"
   },
   "dependencies": {
