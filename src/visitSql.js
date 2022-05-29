@@ -1,4 +1,4 @@
-import database, { pullNextKey } from './root';
+import database from './root';
 
 function selectVisitsForHousehold(householdId) {
   return database.all(
@@ -65,35 +65,32 @@ export function visitsForMonth(year, month) {
   );
 }
 
-/* eslint no-param-reassign: ["error", { "props": true, "ignorePropertyModificationsFor": ["obj"] }] */
-/*const recordVisitTransaction = database.transaction(obj => {
-  const id = pullNextKey('visit');
-
-  const [{ householdVersion }] = database.all(
-    `
-    select max(version) as householdVersion
-    from household
-    where id = :householdId`,
-    obj,
-  );
-
-  return database.insert('visit', { ...obj, id, householdVersion });
-});
-*/
-export function recordVisit(householdId, year, month, day) {
-  let date = new Date();
-  if (year && month && day) {
-    date = { year, month, day };
+export function recordVisit(args) {
+  const { conn } = args;
+  if (!conn) {
+    return database.transaction( conn => recordVisit({ ...args, conn }));
   } else {
-    date = {
-      year: date.getFullYear(),
-      month: date.getMonth() + 1,
-      day: date.getDate(),
-    };
+    const { householdId, year, month, day } = args;
+    let date = new Date();
+    if (year && month && day) {
+      date = { year, month, day };
+    } else {
+      date = {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate(),
+      };
+    }
+    date = formatDate(date);
+
+    return conn.pullNextKey('visit')
+      .then( id =>
+        conn.getMaxVersion('household', householdId)
+          .then( householdVersion => conn.insert('visit', { date, id, householdId, householdVersion }))
+          .then( () => selectVisitById(id))
+          .then( rows => rows[0])
+      );
   }
-  date = formatDate(date);
-  const id = recordVisitTransaction({ date, householdId });
-  return selectVisitById(id)[0];
 }
 
 export function deleteVisit(id) {
