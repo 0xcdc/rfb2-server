@@ -7,9 +7,7 @@ class LoggingConnection {
 
   all(sql, params) {
     return this.execute(sql, params)
-      .then( ([rows, fields]) => {
-        return rows;
-      });
+      .then( ([rows]) => rows);
   }
 
   beginTransaction() {
@@ -38,14 +36,11 @@ class LoggingConnection {
       from ${tableName}
       where id = :id`,
       { id },
-    ).then( rows => {
-      if (rows.length > 0) {
-        const [{ version }] = rows;
-        return version;
-      } else {
-        return 1;
-      }
-    });
+    ).then( rows =>
+      (rows.length > 0) ?
+        rows[0].version
+      : 1
+    );
   }
 
   insert(tablename, values) {
@@ -70,12 +65,12 @@ class LoggingConnection {
       update \`keys\`
         set next_key = next_key + 1
         where tablename = '${tableName}'`)
-    .then( () => {
-      return this.execute(
+    .then( () =>
+      this.execute(
       `
       select next_key
         from \`keys\`
-        where tablename = '${tableName}';`)})
+        where tablename = '${tableName}';`))
     .then( ([results]) => results[0].next_key);
   }
 
@@ -117,7 +112,7 @@ class LoggingConnection {
       // versioned rows are inserts, but we will need to calculate the next version number for the id
       dbOps = this.getMaxVersion(tableName, obj.id)
         .then( maxVersion => {
-          obj.version = maxVersion  + 1;
+          obj.version = maxVersion + 1;
           return this.insert(tableName, obj);
         });
     } else {
@@ -154,7 +149,7 @@ class Database {
             return conn.commit().then( () => result);
           }).catch((err) => {
             console.error(err);
-            conn.rollback()
+            return conn.rollback()
           }).finally(() => {
             conn.release(this.pool);
           });
@@ -178,21 +173,7 @@ class Database {
 
 const database = new Database();
 
-database.run = (sql, params) => {
-  throw("run not implemented");
-  const p = params || {};
-
-  try {
-    const stmt = database.prepare(sql);
-    return stmt.run(p);
-  } catch (error) {
-    console.error({ sql, p, error });
-    throw error;
-  }
-};
-
-
-database.delete = (tablename, { id, version }) => {
+/*database.delete = (tablename, { id, version }) => {
   throw("delete not implemented");
   const isVersioned = version && true;
   const versionSQL = isVersioned ? 'and version = :version' : '';
@@ -206,5 +187,5 @@ database.delete = (tablename, { id, version }) => {
 
   return info;
 };
-
+*/
 export default database;

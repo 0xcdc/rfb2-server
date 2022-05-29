@@ -26,6 +26,7 @@ function addHouseholdInfo(clientList) {
 
     c.cardColor = cardColor(c.householdSize);
   });
+  return clientList;
 }
 
 export function loadAllClients() {
@@ -77,7 +78,7 @@ export function loadClientById(id) {
 }
 
 export function loadClientsForHouseholdId(householdId, householdVersion) {
-  const clients = database.all(
+  return database.all(
     `
     select *
     from client c
@@ -92,28 +93,26 @@ export function loadClientsForHouseholdId(householdId, householdVersion) {
     and householdId = :householdId
     order by name`,
     { householdId, householdVersion },
-  );
-  addHouseholdInfo(clients);
-
-  return clients;
+  )
+  .then( clients => addHouseholdInfo(clients));
 }
 
 export function updateClient(client) {
   const isNewClient = client.id === -1;
-  return database.transaction( conn => {
-    return incrementHouseholdVersion(conn, client.householdId)
-      .then( householdVersion => {
-        return conn.upsert('client', client, { isVersioned: true })
-          .then( () => {
-            if (isNewClient) {
-              return conn.execute(
+  return database.transaction( conn =>
+    incrementHouseholdVersion(conn, client.householdId)
+      .then( householdVersion =>
+        conn.upsert('client', client, { isVersioned: true })
+          .then( () =>
+            (isNewClient) ?
+              conn.execute(
                 `
                 insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
                   values( :householdId, :householdVersion, :id, :version)`,
                 { ...client, householdVersion },
-              );
-            } else {
-              return conn.execute(
+              )
+            :
+              conn.execute(
                 `
                 update household_client_list
                   set clientVersion = :version
@@ -121,27 +120,26 @@ export function updateClient(client) {
                     and householdVersion = :householdVersion
                     and clientId = :id`,
                 { ...client, householdVersion },
-              );
-            }
-          })
-      });
-  }).then( () => loadClientById(client.id));
+              )
+          )
+      )
+  ).then( () => loadClientById(client.id));
 }
 
 export function deleteClient(id) {
-  return loadClientById(id).then( client => {
-    return database.transaction( conn => {
-      return incrementHouseholdVersion(conn, client.householdId)
-        .then( householdVersion => {
-          return conn.execute(
+  return loadClientById(id).then( client =>
+    database.transaction( conn =>
+      incrementHouseholdVersion(conn, client.householdId)
+        .then( householdVersion =>
+          conn.execute(
             `
             delete from household_client_list
               where householdId = :householdId
                 and householdVersion = :householdVersion
                 and clientId = :id
                 and clientVersion = :version`,
-            { ...client, householdVersion })})
-        .then( () => { return client })
-    })
-  });
+            { ...client, householdVersion }))
+        .then( () => client )
+    )
+  );
 }

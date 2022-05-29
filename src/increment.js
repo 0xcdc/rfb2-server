@@ -14,10 +14,9 @@ export function incrementHouseholdVersion(conn, householdId) {
               and h2.version > household.version
           )`,
       { householdId }
-    ).then( () => {
-      return conn.getMaxVersion('household', householdId);
-    }).then ( householdVersion => {
-      return conn.execute(
+    ).then( () => conn.getMaxVersion('household', householdId))
+    .then ( householdVersion =>
+      conn.execute(
 
         `
         insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
@@ -25,8 +24,9 @@ export function incrementHouseholdVersion(conn, householdId) {
             from household_client_list
             where householdId = :householdId
               and householdVersion = :householdVersion - 1`,
-        { householdVersion, householdId },).then( () => householdVersion);
-    })
+        { householdVersion, householdId },)
+      .then( () => householdVersion)
+    )
 };
 
 export { incrementHouseholdVersion as default };
