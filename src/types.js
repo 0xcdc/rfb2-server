@@ -34,7 +34,7 @@ export const typeDefs = buildSchema(`
     cityId: Int!
     zip: String!
     incomeLevelId: Int!
-    householdSize: String!
+    householdSize: Int!
     note: String!
     clients: [Client]
     city: City!
