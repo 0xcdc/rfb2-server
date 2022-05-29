@@ -52,7 +52,7 @@ export function loadAllClients() {
       group by householdId, householdVersion
     ) lv
       ON lv.householdId = h.id
-        AND lv.householdVersion = h.version`,
+        AND lv.householdVersion = h.version`
   );
 
   // group the clients by householdId
@@ -92,9 +92,9 @@ export function loadClientsForHouseholdId(householdId, householdVersion) {
     )
     and householdId = :householdId
     order by name`,
-    { householdId, householdVersion },
+    { householdId, householdVersion }
   )
-  .then( clients => addHouseholdInfo(clients));
+    .then( clients => addHouseholdInfo(clients));
 }
 
 export function updateClient(client) {
@@ -109,17 +109,15 @@ export function updateClient(client) {
                 `
                 insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
                   values( :householdId, :householdVersion, :id, :version)`,
-                { ...client, householdVersion },
-              )
-            :
-              conn.execute(
+                { ...client, householdVersion }
+              ) : conn.execute(
                 `
                 update household_client_list
                   set clientVersion = :version
                   where householdId = :householdId
                     and householdVersion = :householdVersion
                     and clientId = :id`,
-                { ...client, householdVersion },
+                { ...client, householdVersion }
               )
           )
       )

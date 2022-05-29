@@ -12,6 +12,10 @@ module.exports = {
     'sourceType': 'module',
   },
   'rules': {
+    "comma-dangle": ["error", {
+      "objects": "only-multiline",
+      "functions": "only-multiline"
+    }],
     "max-len": ["error", {"code": 120}],
     "require-jsdoc": "off",
     "object-curly-spacing": ["error", "always"],

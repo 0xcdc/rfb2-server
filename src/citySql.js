@@ -1,26 +1,22 @@
 import database from './root';
 
 export function loadAllCities() {
-  const cities = database.all(
+  return database.all(
     `
 SELECT *
 FROM city
-ORDER BY name`,
+ORDER BY name`
   );
-
-  return cities;
 }
 
 export function loadCityById(id) {
-  const cities = database.all(
+  return database.all(
     `
 SELECT *
 FROM city
 where id = :id`,
-    { id },
-  );
-
-  return cities.then(v=> { return v[0]});
+    { id }
+  ).then( rows => rows[0]);
 }
 
 

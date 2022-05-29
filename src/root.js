@@ -1,7 +1,7 @@
 import mysql from 'mysql2';
 class LoggingConnection {
   constructor(conn) {
-    if(!conn) throw "connection needed";
+    if (!conn) throw Error('connection needed');
     this.connection = conn;
   }
 
@@ -11,21 +11,21 @@ class LoggingConnection {
   }
 
   beginTransaction() {
-    console.log("-------BEGIN TRAN--------");
+    console.log('-------BEGIN TRAN--------');
     return this.connection.beginTransaction();
   }
 
   commit() {
-    console.log("--------COMMIT-----------");
+    console.log('--------COMMIT-----------');
     return this.connection.commit();
   }
 
   execute(sql, params) {
-    let p = params || {};
+    const p = params || {};
     console.log(sql);
     console.log(p);
     return this.connection.execute(sql, p)
-      .catch(err => console.error(err))
+      .catch(err => console.error(err));
   }
 
   getMaxVersion(tableName, id) {
@@ -35,11 +35,10 @@ class LoggingConnection {
       select max(version) as version
       from ${tableName}
       where id = :id`,
-      { id },
+      { id }
     ).then( rows =>
       (rows.length > 0) ?
-        rows[0].version
-      : 1
+        rows[0].version : 1
     );
   }
 
@@ -49,7 +48,7 @@ class LoggingConnection {
       `
       insert into ${tablename} (${keys.join(', ')})
         values(${keys.map(k => `:${k}`).join(', ')})`,
-      values,
+      values
     );
   }
 
@@ -65,17 +64,17 @@ class LoggingConnection {
       update \`keys\`
         set next_key = next_key + 1
         where tablename = '${tableName}'`)
-    .then( () =>
-      this.execute(
-      `
-      select next_key
-        from \`keys\`
-        where tablename = '${tableName}';`))
-    .then( ([results]) => results[0].next_key);
+      .then( () =>
+        this.execute(
+          `
+          select next_key
+            from \`keys\`
+            where tablename = '${tableName}';`))
+      .then( ([results]) => results[0].next_key);
   }
 
   rollback() {
-    console.log("--------ROLLBACK-------");
+    console.log('--------ROLLBACK-------');
     return this.connection.rollback();
   }
 
@@ -90,7 +89,7 @@ class LoggingConnection {
         where id = $id
           ${versionSql}`;
     return this.execute(sql, values);
-  };
+  }
 
 
   upsert(tableName, obj, options) {
@@ -121,17 +120,18 @@ class LoggingConnection {
     }
     return dbOps.then( () => obj.id);
   }
-
 }
 
 class Database {
-  pool = mysql.createPool({
+  constructor() {
+    this.pool = mysql.createPool({
       host: 'localhost',
       user: 'sammy',
       password: 'password',
       database: 'foodbank',
       namedPlaceholders: true,
-   });
+    });
+  }
 
   all(sql, params) {
     return this.withConnection( conn => conn.all(sql, params));
@@ -143,14 +143,12 @@ class Database {
       .then( conn => {
         conn = new LoggingConnection(conn);
         return conn.beginTransaction()
-          .then( () => {
-            return fn(conn);
-          }).then((result) => {
-            return conn.commit().then( () => result);
-          }).catch((err) => {
+          .then( () => fn(conn))
+          .then(result => conn.commit().then( () => result))
+          .catch( err => {
             console.error(err);
-            return conn.rollback()
-          }).finally(() => {
+            return conn.rollback();
+          }).finally( () => {
             conn.release(this.pool);
           });
       });
@@ -161,19 +159,21 @@ class Database {
       .then( conn => {
         conn = new LoggingConnection(conn);
         return fn(conn)
-          .catch((err) => {
+          .catch( err => {
             console.error(err);
           })
           .finally(() => {
             conn.release(this.pool);
           });
-      })
+      });
   }
 }
 
 const database = new Database();
 
-/*database.delete = (tablename, { id, version }) => {
+/*
+
+database.delete = (tablename, { id, version }) => {
   throw("delete not implemented");
   const isVersioned = version && true;
   const versionSQL = isVersioned ? 'and version = :version' : '';
