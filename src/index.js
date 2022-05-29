@@ -7,7 +7,7 @@ import { typeDefs } from './types';
 
 const app = express();
 // Have Node serve the files for our built React app
-app.use(express.static(path.resolve(__dirname, '../../rfb2-client-app/build')));
+app.use(express.static(path.resolve(__dirname, '../build')));
 
 app.use('/graphql', graphqlHTTP({
   schema: typeDefs,
