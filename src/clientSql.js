@@ -125,8 +125,11 @@ export function updateClient(client) {
 
 export function deleteClient(id) {
   return loadClientById(id).then( client =>
-    database.transaction( conn =>
-      incrementHouseholdVersion(conn, client.householdId)
+    database.transaction( conn => {
+      if (!client) {
+        throw new Error(`bad client id: ${id}`);
+      }
+      return incrementHouseholdVersion(conn, client.householdId)
         .then( householdVersion =>
           conn.execute(
             `
@@ -136,7 +139,7 @@ export function deleteClient(id) {
                 and clientId = :id
                 and clientVersion = :version`,
             { ...client, householdVersion }))
-        .then( () => client )
-    )
+        .then( () => client );
+    })
   );
 }
