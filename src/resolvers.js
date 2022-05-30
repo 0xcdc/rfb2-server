@@ -31,7 +31,6 @@ export const resolvers = {
   // Mutations:
   deleteClient: args => deleteClient(args.id),
   deleteVisit: args => deleteVisit(args.id),
-  nextKey: args => pullNextKey(args.tableName),
   recordVisit: args => recordVisit(args),
   updateClient: args => updateClient(args.client),
   updateHousehold: args => updateHousehold(args.household),
