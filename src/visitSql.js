@@ -57,7 +57,7 @@ export function visitsForMonth(year, month) {
   const day = 1;
   const firstDay = formatDate({ year, month, day });
   month += 1;
-  if( month > 12) {
+  if ( month > 12) {
     month = 1;
     year += 1;
   }
@@ -74,7 +74,9 @@ export function visitsForMonth(year, month) {
 export function recordVisit(args) {
   const { conn } = args;
   if (!conn) {
-    return database.transaction( conn => recordVisit({ ...args, conn }));
+    return database.transaction( conn => recordVisit({ ...args, conn }))
+      .then( id => selectVisitById(id))
+      .then( rows => rows[0]);
   } else {
     const { householdId, year, month, day } = args;
     let date = new Date();
@@ -93,19 +95,18 @@ export function recordVisit(args) {
       .then( id =>
         conn.getMaxVersion('household', householdId)
           .then( householdVersion => conn.insert('visit', { date, id, householdId, householdVersion }))
-          .then( () => selectVisitById(id))
-          .then( rows => rows[0])
+          .then( () => id)
       );
   }
 }
 
 export function deleteVisit(id) {
-  const visit = selectVisitById(id);
-  if (visit.length === 0) {
-    throw new Error(`could not find a visit with id: ${id}`);
-  }
-
-  database.delete('visit', { id });
-
-  return visit[0];
+  return selectVisitById(id)
+    .then( rows => {
+      if (rows.length === 0) {
+        throw new Error(`could not find a visit with id: ${id}`);
+      }
+      return database.delete('visit', { id })
+        .then( () => rows[0]);
+    });
 }
