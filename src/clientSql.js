@@ -1,4 +1,4 @@
-import database from './root';
+import database from './database';
 import { incrementHouseholdVersion } from './increment';
 
 function addHouseholdInfo(clientList) {

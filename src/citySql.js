@@ -1,4 +1,4 @@
-import database from './root';
+import database from './database';
 
 export function loadAllCities() {
   return database.all(

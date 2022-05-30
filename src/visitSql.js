@@ -1,4 +1,4 @@
-import database from './root';
+import database from './database';
 
 function selectVisitsForHousehold(householdId) {
   return database.all(

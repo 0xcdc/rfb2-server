@@ -1,6 +1,6 @@
 import { loadAllCities, loadCityById } from './citySql';
 import { loadAllClients, loadClientsForHouseholdId } from './clientSql';
-import database from './root';
+import database from './database';
 import { incrementHouseholdVersion } from './increment';
 import { recordVisit } from './visitSql';
 
