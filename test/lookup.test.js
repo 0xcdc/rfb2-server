@@ -14,6 +14,21 @@ describe('lookups', () => {
     plural: 'genders',
     singular: 'gender',
     count: 4,
+  },
+  {
+    plural: 'incomeLevels',
+    singular: 'incomeLevel',
+    count: 5,
+  },
+  {
+    plural: 'militaryStatuses',
+    singular: 'militaryStatus',
+    count: 4,
+  },
+  {
+    plural: 'races',
+    singular: 'race',
+    count: 9,
   }];
 
   lookups.forEach( lookup => {
