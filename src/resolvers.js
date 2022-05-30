@@ -3,7 +3,6 @@ import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visit
 import { loadAllCities, loadCityById } from './citySql';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql';
 import { lookupSet } from './lookupTableSql';
-import { pullNextKey } from './root';
 
 export const resolvers = {
   // Query:
