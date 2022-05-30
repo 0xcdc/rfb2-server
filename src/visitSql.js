@@ -54,8 +54,14 @@ export function firstVisitsForYear(year) {
 }
 
 export function visitsForMonth(year, month) {
-  const firstDay = formatDate({ year, month, day: 1 });
-  const lastDay = formatDate({ year, month: month + 1, day: 1 });
+  const day = 1;
+  const firstDay = formatDate({ year, month, day });
+  month += 1;
+  if( month > 12) {
+    month = 1;
+    year += 1;
+  }
+  const lastDay = formatDate({ year, month, day });
 
   return database.all(
     `SELECT *
