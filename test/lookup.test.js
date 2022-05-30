@@ -29,6 +29,11 @@ describe('lookups', () => {
     plural: 'races',
     singular: 'race',
     count: 9,
+  },
+  {
+    plural: 'yesNos',
+    singular: 'yesNo',
+    count: 3,
   }];
 
   lookups.forEach( lookup => {
