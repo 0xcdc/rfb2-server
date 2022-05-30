@@ -4,7 +4,7 @@ const should = chai.should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
-describe('GraphQL', () => {
+describe('visit', () => {
   it('first visits for year', (done) => {
     request.post('/graphql')
     .send({ query: `{

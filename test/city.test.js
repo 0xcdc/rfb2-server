@@ -4,7 +4,7 @@ const should = chai.should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
-describe('GraphQL', () => {
+describe('city', () => {
   it('Returns all cities', (done) => {
     request.post('/graphql')
     .send({ query: '{ cities { id name break_out in_king_county } }' })
