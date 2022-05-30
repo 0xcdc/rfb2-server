@@ -30,7 +30,6 @@ class LoggingConnection {
   }
 
   getMaxVersion(tableName, id) {
-    console.log('getMaxVersion');
     return this.all(
       `
       select max(version) as version
@@ -50,6 +49,18 @@ class LoggingConnection {
       insert into ${tablename} (${keys.join(', ')})
         values(${keys.map(k => `:${k}`).join(', ')})`,
       values
+    );
+  }
+
+  delete(tablename, { id, version }) {
+    const isVersioned = version && true;
+    const versionSQL = isVersioned ? 'and version = :version' : '';
+    return this.execute(
+      `
+      delete from ${tablename}
+        where id = :id
+          ${versionSQL}`,
+      { id, version },
     );
   }
 
@@ -138,6 +149,10 @@ class Database {
     return this.withConnection( conn => conn.all(sql, params));
   }
 
+  delete(tablename, { id, version }) {
+    return this.withConnection( conn => conn.delete(tablename, { id, version }));
+  }
+
   getMaxVersion(tableName, id) {
     return this.withConnection( conn => conn.getMaxVersion(tableName, id));
   }
@@ -179,23 +194,5 @@ class Database {
 }
 
 const database = new Database();
-
-/*
-
-database.delete = (tablename, { id, version }) => {
-  throw("delete not implemented");
-  const isVersioned = version && true;
-  const versionSQL = isVersioned ? 'and version = :version' : '';
-  const info = database.run(
-    `
-    delete from ${tablename}
-      where id = :id
-        ${versionSQL}`,
-    { id, version },
-  );
-
-  return info;
-};
-*/
 
 export default database;
