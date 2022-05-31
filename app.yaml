@@ -11,6 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START gae_quickstart_yaml]
 runtime: nodejs16
-# [END gae_quickstart_yaml]
+
+handlers:
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
