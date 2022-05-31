@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
 const should = chai.should();
@@ -40,6 +41,7 @@ describe('lookups', () => {
     it(`Returns all ${lookup.plural}`, (done) => {
       const query = `{ ${lookup.plural} { id value } }`;
       request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query })
       .expect(200)
       .end((err, res) => {
@@ -54,6 +56,7 @@ describe('lookups', () => {
 
     it(`Returns ${lookup.singular} with id = 1`, (done) => {
       request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{ ${lookup.singular}(id: 1) { id value } }`})
       .expect(200)
       .end((err,res) => {
@@ -69,6 +72,7 @@ describe('lookups', () => {
 
     it(`non existant ${lookup.singular}`, (done) => {
       request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{ ${lookup.singular}(id: -100) { id value } }`})
       .expect(200)
       .end((err,res) => {

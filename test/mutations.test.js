@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
 const should = chai.should();
@@ -12,6 +13,7 @@ describe('mutations', () => {
 
   it('create a new household', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `mutation{
       updateHousehold(household:{
         id: -1,
@@ -66,6 +68,7 @@ describe('mutations', () => {
 
   it('new household should get a visit recorded automatically', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       visitsForHousehold(householdId: ${newHouseholdId}) {
         id
@@ -93,6 +96,7 @@ describe('mutations', () => {
 
   it('update the new household', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `mutation{
       updateHousehold(household:{
         id: ${newHouseholdId},
@@ -145,6 +149,7 @@ describe('mutations', () => {
 
   it('updating a household should not record a visit', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       visitsForHousehold(householdId: ${newHouseholdId}) {
         id
@@ -166,6 +171,7 @@ describe('mutations', () => {
 
   it('create a new client', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `
       mutation {
         updateClient(
@@ -234,6 +240,7 @@ describe('mutations', () => {
 
   it('update the new client', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `
       mutation {
         updateClient(
@@ -314,6 +321,7 @@ describe('mutations', () => {
       }
     }`;
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query })
     .expect(200)
     .end((err, res) => {
@@ -345,6 +353,7 @@ describe('mutations', () => {
       }
     }`;
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query })
     .expect(200)
     .end((err, res) => {
@@ -371,6 +380,7 @@ describe('mutations', () => {
       }
     }`;
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query })
     .expect(200)
     .end((err, res) => {

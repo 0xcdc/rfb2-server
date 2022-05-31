@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import mysql from 'mysql2';
 
 class LoggingConnection {
@@ -64,7 +65,7 @@ class LoggingConnection {
     );
   }
 
-  release(pool) {
+  release() {
     this.connection.release();
     this.connection = null;
   }
@@ -137,10 +138,10 @@ class LoggingConnection {
 class Database {
   constructor() {
     this.pool = mysql.createPool({
-      host: 'localhost',
-      user: 'sammy',
-      password: 'password',
-      database: 'foodbank',
+      host: credentials.mysqlHost,
+      user: credentials.mysqlUsername,
+      password: credentials.mysqlPassword,
+      database: credentials.mysqlDatabase,
       namedPlaceholders: true,
     });
   }
@@ -168,7 +169,7 @@ class Database {
             console.error(err);
             throw err;
           }).finally( () => {
-            conn.release(this.pool);
+            conn.release();
           });
       });
   }
@@ -183,7 +184,7 @@ class Database {
             throw err;
           })
           .finally(() => {
-            conn.release(this.pool);
+            conn.release();
           });
       })
       .catch( err => {

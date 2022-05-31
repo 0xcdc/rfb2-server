@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
 const should = chai.should();
@@ -7,6 +8,7 @@ const request = supertest(url);
 describe('visit', () => {
   it('first visits for year', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       firstVisitsForYear(year: 2022) {
         id householdId householdVersion date
@@ -30,6 +32,7 @@ describe('visit', () => {
 
   it('visits for household', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       visitsForHousehold(householdId: 100) {
         id householdId householdVersion date
@@ -53,6 +56,7 @@ describe('visit', () => {
 
   it('visits for month', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       visitsForMonth(year: 2021, month: 12) {
         id householdId householdVersion date

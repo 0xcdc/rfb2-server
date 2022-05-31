@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
 const should = chai.should();
@@ -7,6 +8,7 @@ const request = supertest(url);
 describe('client', () => {
   it('Returns all clients', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       clients {
         id
@@ -54,6 +56,7 @@ describe('client', () => {
 
   it('Returns client with id = 200', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       client(id: 200) {
         ${props.join(' ')}
@@ -72,6 +75,7 @@ describe('client', () => {
 
   it('non existant client', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: '{ client(id: -100) { id name } }'})
     .expect(200)
     .end((err,res) => {

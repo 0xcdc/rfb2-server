@@ -1,5 +1,7 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
+
 const should = chai.should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
@@ -7,6 +9,7 @@ const request = supertest(url);
 describe('city', () => {
   it('Returns all cities', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: '{ cities { id name break_out in_king_county } }' })
     .expect(200)
     .end((err, res) => {
@@ -22,6 +25,7 @@ describe('city', () => {
 
   it('Returns city with id = 10', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: '{ city(id: 10) { id name break_out in_king_county} }'})
     .expect(200)
     .end((err,res) => {
@@ -39,6 +43,7 @@ describe('city', () => {
 
   it('non existant city', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: '{ city(id: -100) { id name } }'})
     .expect(200)
     .end((err,res) => {

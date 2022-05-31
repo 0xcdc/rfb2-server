@@ -1,3 +1,4 @@
+import credentials from '../credentials';
 import supertest from 'supertest';
 import chai from 'chai';
 const should = chai.should();
@@ -7,6 +8,7 @@ const request = supertest(url);
 describe('household', () => {
   it('Returns all households', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
       households(ids:[100,101]) {
         id
@@ -63,6 +65,7 @@ describe('household', () => {
          }
        }}`;
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query })
     .expect(200)
     .end((err,res) => {
@@ -79,6 +82,7 @@ describe('household', () => {
 
   it('non existant household ', (done) => {
     request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: '{ household (id: -100) { id note } }'})
     .expect(200)
     .end((err,res) => {
