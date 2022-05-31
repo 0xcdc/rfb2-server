@@ -40,7 +40,7 @@ app.use('/graphql', graphqlHTTP({
 
 // All other GET requests not handled before will return our React app
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../rfb2-client-app/build', 'index.html'));
+  res.sendFile(path.resolve(__dirname, '../build', 'index.html'));
 });
 
 const port = process.env.PORT || 4000;
