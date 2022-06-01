@@ -8,7 +8,7 @@ import { typeDefs } from './types';
 const app = express();
 
 app.use((req, res, next) => {
-  console.log(req.url);
+  console.log({ url: req.url });
   const reject = () => {
     res.setHeader('www-authenticate', 'Basic');
     res.sendStatus(401);
