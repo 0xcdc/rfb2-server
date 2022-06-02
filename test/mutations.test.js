@@ -66,7 +66,7 @@ describe('mutations', () => {
     })
   })
 
-  it('new household should get a visit recorded automatically', (done) => {
+  it('new household should NOT get a visit recorded automatically', (done) => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
@@ -82,14 +82,8 @@ describe('mutations', () => {
       if (err) return done(err);
       should.exist(res.body.data);
       should.exist(res.body.data.visitsForHousehold);
-      res.body.data.visitsForHousehold.should.have.lengthOf(1);
+      res.body.data.visitsForHousehold.should.have.lengthOf(0);
 
-      res.body.data.visitsForHousehold[0].should.have.property('id');
-      res.body.data.visitsForHousehold[0].should.have.property('householdId');
-      res.body.data.visitsForHousehold[0].should.have.property('householdVersion');
-      res.body.data.visitsForHousehold[0].should.have.property('date');
-
-      newVisitIds.push(res.body.data.visitsForHousehold[0].id);
       done();
     })
   })
@@ -163,7 +157,7 @@ describe('mutations', () => {
       if (err) return done(err);
       should.exist(res.body.data);
       should.exist(res.body.data.visitsForHousehold);
-      res.body.data.visitsForHousehold.should.have.lengthOf(1);
+      res.body.data.visitsForHousehold.should.have.lengthOf(0);
 
       done();
     })
