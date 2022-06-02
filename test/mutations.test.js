@@ -308,12 +308,7 @@ describe('mutations', () => {
 
   it('record a visit', (done) => {
     const query = `
-      mutation { recordVisit(
-        householdId:${newHouseholdId},
-        year:2000,
-        month:1,
-        day:1,
-      ) {
+      mutation { recordVisit(householdId:${newHouseholdId}) {
         id
         date
         householdId

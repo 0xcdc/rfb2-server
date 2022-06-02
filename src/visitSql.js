@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import database from './database';
 
 function selectVisitsForHousehold(householdId) {
@@ -24,17 +25,9 @@ export function visitsForHousehold(householdId) {
   return selectVisitsForHousehold(householdId);
 }
 
-function formatDate(date) {
-  const { year } = date;
-  let { month, day } = date;
-  if (month < 10) month = `0${month}`;
-  if (day < 10) day = `0${day}`;
-  return `${year}-${month}-${day}`;
-}
-
 export function firstVisitsForYear(year) {
-  const firstDay = formatDate({ year, month: 1, day: 1 });
-  const lastDay = formatDate({ year: year + 1, month: 1, day: 1 });
+  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
+  const lastDay = DateTime.fromObject({ year: year + 1, month: 1, day: 1 }).toISODate();
 
   const sql = `
      SELECT *
@@ -55,13 +48,10 @@ export function firstVisitsForYear(year) {
 
 export function visitsForMonth(year, month) {
   const day = 1;
-  const firstDay = formatDate({ year, month, day });
-  month += 1;
-  if ( month > 12) {
-    month = 1;
-    year += 1;
-  }
-  const lastDay = formatDate({ year, month, day });
+  let firstDay = DateTime.fromObject({ year, month, day });
+  let lastDay = firstDay.plus({ months: 1 });
+
+  [firstDay, lastDay] = [firstDay, lastDay].map( e => e.toISODate());
 
   return database.all(
     `SELECT *
@@ -79,17 +69,13 @@ export function recordVisit(args) {
       .then( rows => rows[0]);
   } else {
     const { householdId, year, month, day } = args;
-    let date = new Date();
+    let date =null;
     if (year && month && day) {
-      date = { year, month, day };
+      date = DateTime.fromObject({ year, month, day });
     } else {
-      date = {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-      };
+      date = DateTime.now().setZone('America/Los_Angeles');
     }
-    date = formatDate(date);
+    date = date.toISODate();
 
     return conn.pullNextKey('visit')
       .then( id =>
