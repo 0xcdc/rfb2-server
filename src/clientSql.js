@@ -101,7 +101,9 @@ export function updateClient({ client, inPlace }) {
   let dbOp = null;
   if (isNewClient || !inPlace) {
     dbOp = database.transaction( conn =>
-      incrementHouseholdVersion(conn, client.householdId)
+      (inPlace !== true ?
+        incrementHouseholdVersion(conn, client.householdId) :
+        conn.getMaxVersion('household', client.householdId))
         .then( householdVersion =>
           conn.upsert('client', client, { isVersioned: true })
             .then( () =>

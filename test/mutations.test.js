@@ -376,6 +376,9 @@ describe('mutations', () => {
       res.body.data.recordVisit.should.have.property('householdVersion');
       res.body.data.recordVisit.should.have.property('date');
 
+      res.body.data.recordVisit.householdId.should.equal(newHouseholdId);
+      res.body.data.recordVisit.householdVersion.should.equal(newHouseholdVersion);
+
       newVisitIds.push(res.body.data.recordVisit.id);
 
       done();
