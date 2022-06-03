@@ -163,6 +163,59 @@ describe('mutations', () => {
     })
   })
 
+  it('update the new household in place', (done) => {
+    request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
+    .send({ query: `mutation{
+      updateHousehold(household:{
+        id: ${newHouseholdId},
+        address1: "four",
+        address2: "five",
+        cityId: 2,
+        zip: "98008",
+        incomeLevelId: 2,
+        note: "six"
+      }, inPlace: true) {
+        id
+        version
+        address1
+        address2
+        cityId
+        zip
+        incomeLevelId
+        note
+      }
+    }` })
+    .expect(200)
+    .end((err, res) => {
+      if (err) return done(err);
+      should.exist(res.body.data);
+      should.exist(res.body.data.updateHousehold);
+
+      res.body.data.updateHousehold.should.have.property('id');
+      res.body.data.updateHousehold.should.have.property('version');
+      res.body.data.updateHousehold.should.have.property('address1');
+      res.body.data.updateHousehold.should.have.property('address2');
+      res.body.data.updateHousehold.should.have.property('cityId');
+      res.body.data.updateHousehold.should.have.property('zip');
+      res.body.data.updateHousehold.should.have.property('incomeLevelId');
+      res.body.data.updateHousehold.should.have.property('note');
+
+      res.body.data.updateHousehold.id.should.equal(newHouseholdId);
+      res.body.data.updateHousehold.version.should.equal(2);
+      res.body.data.updateHousehold.address1.should.equal('four');
+      res.body.data.updateHousehold.address2.should.equal('five');
+      res.body.data.updateHousehold.cityId.should.equal(2);
+      res.body.data.updateHousehold.zip.should.equal('98008');
+      res.body.data.updateHousehold.incomeLevelId.should.equal(2);
+      res.body.data.updateHousehold.note.should.equal('six');
+
+      newHouseholdVersion = res.body.data.updateHousehold.version;
+
+      done();
+    })
+  })
+
   it('create a new client', (done) => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
@@ -358,6 +411,75 @@ describe('mutations', () => {
       done();
     })
   })
+
+  it('update the new client inPlace', (done) => {
+    request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
+    .send({ query: `
+      mutation {
+        updateClient(
+          client: {
+            id: ${newClientId},
+            householdId: ${newHouseholdId},
+            name: "two",
+            raceId: 2,
+            disabled: 0,
+            birthYear: "2001",
+            genderId: 2,
+            refugeeImmigrantStatus: 0,
+            speaksEnglish: 0,
+            militaryStatusId: 2,
+            ethnicityId: 2},
+            inPlace: true) {
+              id
+              householdId
+              name
+              raceId
+              disabled
+              birthYear
+              genderId
+              refugeeImmigrantStatus
+              speaksEnglish
+              militaryStatusId
+              ethnicityId
+            }
+          }
+       `})
+    .expect(200)
+    .end((err, res) => {
+      if (err) return done(err);
+      should.exist(res.body.data);
+      should.exist(res.body.data.updateClient);
+
+      res.body.data.updateClient.id.should.equal(newClientId);
+      res.body.data.updateClient.householdId.should.equal(newHouseholdId);
+
+      done();
+   })
+  })
+
+  it('household version should not be updated after inplace client update', (done) => {
+    const query =  `{household(id: ${newHouseholdId}) {
+         id,
+         version
+       }}`;
+    request.post('/graphql')
+    .auth(credentials.websiteUsername, credentials.websitePassword)
+    .send({ query })
+    .expect(200)
+    .end((err,res) => {
+      // res will contain array with one user
+      if (err) return done(err);
+      should.exist(res.body.data);
+      should.exist(res.body.data.household );
+      should.exist(res.body.data.household.version);
+
+      res.body.data.household.version.should.equal(newHouseholdVersion);
+      done();
+    })
+  })
+
+
 
   it('delete a client', (done) => {
     const query = `

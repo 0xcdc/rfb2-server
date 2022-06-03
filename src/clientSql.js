@@ -96,31 +96,43 @@ export function loadClientsForHouseholdId(householdId, householdVersion) {
     .then( clients => addHouseholdInfo(clients));
 }
 
-export function updateClient(client) {
+export function updateClient({ client, inPlace }) {
   const isNewClient = client.id === -1;
-  return database.transaction( conn =>
-    incrementHouseholdVersion(conn, client.householdId)
-      .then( householdVersion =>
-        conn.upsert('client', client, { isVersioned: true })
-          .then( () =>
-            (isNewClient) ?
-              conn.execute(
-                `
-                insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
-                  values( :householdId, :householdVersion, :id, :version)`,
-                { ...client, householdVersion }
-              ) : conn.execute(
-                `
-                update household_client_list
-                  set clientVersion = :version
-                  where householdId = :householdId
-                    and householdVersion = :householdVersion
-                    and clientId = :id`,
-                { ...client, householdVersion }
-              )
-          )
-      )
-  ).then( () => loadClientById(client.id));
+  let dbOp = null;
+  if (isNewClient || !inPlace) {
+    dbOp = database.transaction( conn =>
+      incrementHouseholdVersion(conn, client.householdId)
+        .then( householdVersion =>
+          conn.upsert('client', client, { isVersioned: true })
+            .then( () =>
+              (isNewClient) ?
+                conn.execute(
+                  `
+                  insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
+                    values( :householdId, :householdVersion, :id, :version)`,
+                  { ...client, householdVersion }
+                ) : conn.execute(
+                  `
+                  update household_client_list
+                    set clientVersion = :version
+                    where householdId = :householdId
+                      and householdVersion = :householdVersion
+                      and clientId = :id`,
+                  { ...client, householdVersion }
+                )
+            )
+        )
+    );
+  } else {
+    dbOp = database.transaction( conn => {
+      return conn.getMaxVersion('client', client.id)
+        .then( version => {
+          client.version = version;
+          return conn.update('client', client);
+        });
+    });
+  }
+  return dbOp.then( () => loadClientById(client.id));
 }
 
 export function deleteClient(id) {

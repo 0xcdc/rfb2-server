@@ -72,18 +72,19 @@ export function loadHouseholdById(id, version) {
   return loadById({ id, version });
 }
 
-export function updateHousehold(household) {
+export function updateHousehold({ household, inPlace }) {
   return database.transaction(conn => {
-    let dbOp = null;
     if (household.id === -1) {
-      dbOp = conn.upsert('household', household, { isVersioned: true });
+      return conn.upsert('household', household, { isVersioned: true });
     } else {
-      dbOp = incrementHouseholdVersion(conn, household.id)
-        .then( version => {
-          household.version = version;
-          return conn.update('household', household);
-        });
+      const dbOp = inPlace ?
+        conn.getMaxVersion('household', household.id) :
+        incrementHouseholdVersion(conn, household.id);
+
+      return dbOp.then( version => {
+        household.version = version;
+        return conn.update('household', household);
+      });
     }
-    return dbOp;
   }).then( () => loadById(household));
 }

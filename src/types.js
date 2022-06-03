@@ -104,7 +104,7 @@ export const typeDefs = buildSchema(`
     deleteClient(id: Int!): Client,
     deleteVisit(id: Int!): Visit,
     recordVisit(householdId: Int!): Visit,
-    updateClient(client: ClientInput!): Client,
-    updateHousehold(household: HouseholdInput!): Household
+    updateClient(client: ClientInput!, inPlace: Boolean): Client,
+    updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
   }
 `);

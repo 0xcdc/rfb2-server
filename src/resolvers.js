@@ -31,6 +31,6 @@ export const resolvers = {
   deleteClient: args => deleteClient(args.id),
   deleteVisit: args => deleteVisit(args.id),
   recordVisit: args => recordVisit(args),
-  updateClient: args => updateClient(args.client),
-  updateHousehold: args => updateHousehold(args.household),
+  updateClient: args => updateClient(args),
+  updateHousehold: args => updateHousehold(args),
 };
