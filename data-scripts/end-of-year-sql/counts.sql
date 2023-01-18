@@ -1,9 +1,9 @@
 with data as (
-  select *
+  select city.id, city.name, city.break_out, city.in_king_county, `Unduplicated_Households`,  `Unduplicated_Individuals`
     from city
     left join (
       select cityId,
-        count(household.id) "Unduplicated_Households"
+        count(household.id) `Unduplicated_Households`
       from households_visited_last_year
       join household
         on household.id = households_visited_last_year.id and
@@ -13,7 +13,7 @@ with data as (
     on city.id = d.cityId
     left join (
       select cityId,
-         count(client.id) as "Unduplicated_Individuals"
+         count(client.id) as `Unduplicated_Individuals`
       from households_visited_last_year
       join household
         on household.id = households_visited_last_year.id and
@@ -30,8 +30,8 @@ with data as (
 )
 select id,
   name,
-  coalesce(Unduplicated_Households, 0) as "Unduplicated_Households",
-  coalesce(Unduplicated_Individuals, 0) as "Unduplicated_Individuals"
+  coalesce(Unduplicated_Households, 0) as `Unduplicated_Households`,
+  coalesce(Unduplicated_Individuals, 0) as `Unduplicated_Individuals`
 from data
 where break_out = 1 and id <> 0
 union all
@@ -47,3 +47,4 @@ select 102, 'Unknown', sum(data.Unduplicated_Households), sum(data.Unduplicated_
 from data
 where id = 0
 order by id;
+

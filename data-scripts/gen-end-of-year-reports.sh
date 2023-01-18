@@ -1,6 +1,6 @@
 for i in end-of-year-sql/*.sql; do
-  sqlite3 ../database.sqlite -header -csv < $i > $i.csv
+  mysql --database foodbank -u$DB_USER -p$DB_PASSWORD < $i > $i.tsv
 done;
 
-ssconvert --merge-to=all.xls end-of-year-sql/*.csv
+ssconvert --merge-to=all.xls end-of-year-sql/*.tsv
 
