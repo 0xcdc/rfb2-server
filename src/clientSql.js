@@ -13,8 +13,8 @@ function addHouseholdInfo(clientList) {
           return 'red';
         case 3:
         case 4:
-          return 'blue';
         case 5:
+          return 'blue';
         case 6:
         case 7:
           return 'yellow';
