@@ -14,7 +14,7 @@
 runtime: nodejs16
 
 vpc_access_connector:
-  name: projects/rfb-foodbank-2/locations/us-west1/connectors/connector1
+  name: projects/client-checkin-application/locations/us-west1/connectors/connector1
 
 handlers:
 - url: /.*
