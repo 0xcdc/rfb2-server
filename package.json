@@ -9,7 +9,8 @@
     "migration": "babel-node data-scripts/migrations/migrations.js",
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon --exec babel-node src/index.js",
-    "deploy": "gcloud app deploy"
+    "deploy": "gcloud app deploy",
+    "create-db": "perl create-database.pl"
   },
   "keywords": [],
   "author": "",
