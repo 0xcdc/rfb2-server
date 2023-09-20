@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { DateTime } from 'luxon';
 
 const firstNames = [
   'Able',
@@ -120,9 +121,9 @@ async function createHousehold(lastName) {
 
   const householdId = household.id;
 
-  let count = getRandomInt(1, 8);
+  let clientCount = getRandomInt(1, 8);
 
-  while(count > 0) {
+  while(clientCount > 0) {
     let firstName = firstNames[firstNameIndex];
     firstNameIndex += 1;
     firstNameIndex %= firstNames.length;
@@ -136,11 +137,30 @@ async function createHousehold(lastName) {
           id householdId name disabled raceId birthYear genderId refugeeImmigrantStatus speaksEnglish militaryStatusId ethnicityId
         }
     }`;
-
     console.log(`creating client ${name}`);
     let client = await graphQL(createClientGraphQL, 'updateClient');
-    count -= 1;
+    clientCount -= 1;
   };
+
+  let visitCount = getRandomInt(1, 8);
+  let  date = DateTime.now().setZone('America/Los_Angeles')
+  while(visitCount > 0) {
+    let weeksBack = getRandomInt(1, 2);
+    date = date.minus({ weeks: weeksBack });
+
+    let year = date.year;
+    let month = date.month;
+    let day = date.day;
+
+    let recordVisitGraphQL= `
+    mutation{recordVisit(
+        householdId: ${householdId}, year: ${year}, month: ${month}, day: ${day}){date}}`;
+
+    console.log('recording visit on ' + date.toISODate());
+    let visit = await graphQL(recordVisitGraphQL, "recordVisit");
+    visitCount -= 1;
+  }
+
 }
 
 await Promise.all(lastNames.map( lastName => createHousehold(lastName) ));

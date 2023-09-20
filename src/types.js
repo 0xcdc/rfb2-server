@@ -103,7 +103,7 @@ export const typeDefs = buildSchema(`
   type Mutation {
     deleteClient(id: Int!): Client,
     deleteVisit(id: Int!): Visit,
-    recordVisit(householdId: Int!): Visit,
+    recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
     updateClient(client: ClientInput!, inPlace: Boolean): Client,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
   }
