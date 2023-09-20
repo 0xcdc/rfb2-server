@@ -10,7 +10,7 @@
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon --exec babel-node src/index.js",
     "deploy": "gcloud app deploy",
-    "create-db": "perl create-database.pl",
+    "create-db": "perl data-scripts/create-database.pl",
     "create-dummy-data": "node data-scripts/create-dummy-data.mjs"
   },
   "keywords": [],
