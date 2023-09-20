@@ -9,6 +9,8 @@ const app = express();
 
 app.use((req, res, next) => {
   console.log({ url: req.url });
+  if (credentials.websiteUsername === "" && credentials.websitePassword === "") return next();
+
   const reject = () => {
     res.setHeader('www-authenticate', 'Basic');
     res.sendStatus(401);

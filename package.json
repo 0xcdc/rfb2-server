@@ -10,7 +10,8 @@
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon --exec babel-node src/index.js",
     "deploy": "gcloud app deploy",
-    "create-db": "perl create-database.pl"
+    "create-db": "perl create-database.pl",
+    "create-dummy-data": "node data-scripts/create-dummy-data.mjs"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.2.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^2.0.22",
     "supertest": "^6.3.3"
   },
