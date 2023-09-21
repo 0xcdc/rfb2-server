@@ -77,12 +77,15 @@ const checkStatus = response => {
 }
 
 async function graphQL(query, key) {
-  const url = `http://localhost:4000/graphQL`;
-  const body = new URLSearchParams();
-  body.append('query', query);
+  const url = `http://localhost:4000/graphql`;
+  const body = JSON.stringify({ query });
 
   let response = await fetch(url, {
     method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
     body,
   });
   try {
@@ -113,7 +116,6 @@ async function createHousehold(lastName) {
         id address1 address2 cityId zip incomeLevelId note
       }
   }`;
-
 
   console.log(`creating ${lastName} household`);
 
