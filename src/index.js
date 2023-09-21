@@ -7,7 +7,7 @@ import { typeDefs } from './types';
 
 const app = express();
 
-app.use(express.json());
+app.use('/graphql', express.json());
 app.use((req, res, next) => {
   console.log({ url: req.url, body: req.body });
   if (credentials.websiteUsername === '' && credentials.websitePassword === '') return next();
