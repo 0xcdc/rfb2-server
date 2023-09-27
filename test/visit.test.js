@@ -5,12 +5,15 @@ const should = chai.should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth() + 1;
+
 describe('visit', () => {
   it('first visits for year', (done) => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
-      firstVisitsForYear(year: 2022) {
+      firstVisitsForYear(year: ${currentYear}) {
         id householdId householdVersion date
       }
     }` })
@@ -34,7 +37,7 @@ describe('visit', () => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
-      visitsForHousehold(householdId: 100) {
+      visitsForHousehold(householdId: 2) {
         id householdId householdVersion date
       }
     }` })
@@ -58,7 +61,7 @@ describe('visit', () => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
-      visitsForMonth(year: 2021, month: 12) {
+      visitsForMonth(year: ${currentYear}, month: ${currentMonth}) {
         id householdId householdVersion date
       }
     }` })
