@@ -106,6 +106,7 @@ CREATE TABLE `household` (
   `zip` varchar(255) DEFAULT NULL,
   `note` varchar(255) DEFAULT NULL,
   `incomeLevelId` int NOT NULL,
+  `latlng` varchar(255) NOT NULL, /* add a new colume to save location of the household*/
   PRIMARY KEY (`id`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
