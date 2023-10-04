@@ -5,8 +5,8 @@ import database from './database.js';
 export function incrementHouseholdVersion(conn, householdId) {
   return conn.execute(
     `
-    insert into household (id, version, address1, address2, cityId, zip, note, incomeLevelId)
-      select id, version+1, address1, address2, cityId, zip, note, incomeLevelId
+    insert into household (id, version, address1, address2, cityId, zip, note, incomeLevelId, latlng)
+      select id, version+1, address1, address2, cityId, zip, note, incomeLevelId, latlng
       from household
       where household.id = :householdId
         and not exists (
@@ -102,6 +102,8 @@ export function loadHouseholdById(id, version) {
 }
 
 export function updateHousehold({ household, inPlace }) {
+  //temporary fix
+  household['latlng'] = "";
   return database.transaction(conn => {
     if (household.id === -1) {
       return conn.upsert('household', household, { isVersioned: true });
