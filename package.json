@@ -3,21 +3,22 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "babel-node src/index.js",
+    "start": "node src/index.js",
     "eslint": "eslint src/**",
     "migration": "babel-node data-scripts/migrations/migrations.js",
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon --exec babel-node src/index.js",
     "deploy": "gcloud app deploy",
     "create-db": "perl data-scripts/create-database.pl",
-    "create-dummy-data": "node data-scripts/create-dummy-data.mjs"
+    "create-dummy-data": "node data-scripts/create-dummy-data.mjs",
+    "geocode": "node data-scripts/lookupLatLng.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.23.0",
     "@babel/node": "^7.22.19",
     "chai": "^4.3.9",
     "eslint": "^8.50.0",
@@ -32,8 +33,6 @@
     "supertest": "^6.3.3"
   },
   "dependencies": {
-    "@babel/cli": "^7.23.0",
-    "@babel/preset-env": "^7.22.20",
     "express": "^4.18.2",
     "express-graphql": "^0.12.0",
     "luxon": "^3.4.3",

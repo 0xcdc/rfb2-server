@@ -1,5 +1,5 @@
-import database from './database';
-import { incrementHouseholdVersion } from './householdSql';
+import database from './database.js';
+import { incrementHouseholdVersion } from './householdSql.js';
 
 function addHouseholdInfo(clientList) {
   clientList.forEach(client => {

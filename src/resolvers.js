@@ -1,8 +1,8 @@
-import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql';
-import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql';
-import { loadAllCities, loadCityById } from './citySql';
-import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql';
-import { lookupSet } from './lookupTableSql';
+import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql.js';
+import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql.js';
+import { loadAllCities, loadCityById } from './citySql.js';
+import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
+import { lookupSet } from './lookupTableSql.js';
 
 export const resolvers = {
   // Query:

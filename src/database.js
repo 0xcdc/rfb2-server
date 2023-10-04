@@ -1,4 +1,4 @@
-import credentials from '../credentials';
+import credentials from '../credentials.js';
 import mysql from 'mysql2';
 
 class LoggingConnection {

@@ -1,10 +1,14 @@
-import credentials from '../credentials';
+import credentials from '../credentials.js';
 import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
 import path from 'path';
-import { resolvers } from './resolvers';
-import { typeDefs } from './types';
+import { resolvers } from './resolvers.js';
+import { typeDefs } from './types.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const app = express();
 
 app.use('/graphql', express.json());
