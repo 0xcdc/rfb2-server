@@ -1,8 +1,9 @@
 import url from 'node:url';
 import fetch from 'node-fetch';
 import { exit } from 'node:process';
+import { credentials } from '../credentials.js';
 
-const apiKey = "AIzaSyDuBNfxnYg4_JjaqoiGuUzoDkZ3GSI9Pdc"
+const apiKey = credentials.googleApiKey;
 
 class HTTPResponseError extends Error {
 	constructor(response) {
