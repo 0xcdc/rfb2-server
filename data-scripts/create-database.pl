@@ -16,6 +16,16 @@ print "what password do you want to use to login to the foodbank website (blank 
 my $web_password = <STDIN>;
 chomp $web_password;
 
+print "what google project do you (blank for none)? ";
+my $google_project_name = <STDIN>;
+chomp $google_project_name;
+
+print "what is the api key to use with the google project (blank for none)?";
+my $api_key= <STDIN>;
+chomp $api_key;
+
+
+
 my $credentials = <<"ENDSTRING";
 export const credentials = {
   mysqlUsername: '$db_username',
@@ -25,6 +35,9 @@ export const credentials = {
 
   websiteUsername: '$web_username',
   websitePassword: '$web_password',
+
+  googleProjectName: '$google_project_name',
+  googleApiKey: '$api_key',
 };
 
 export default credentials;
