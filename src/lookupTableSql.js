@@ -1,4 +1,4 @@
-import database from './database';
+import database from './database.js';
 
 function lookupItem(tableName, id) {
   return database.all(

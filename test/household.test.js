@@ -39,8 +39,8 @@ describe('household', () => {
     'note',
   ];
 
-  it('Returns household  with id = 200', (done) => {
-    const query =  `{household(id: 200) {
+  it('Returns household  with id = 2', (done) => {
+    const query =  `{household(id: 2) {
          id
          version
          address1

@@ -54,11 +54,11 @@ describe('client', () => {
     'note',
   ];
 
-  it('Returns client with id = 200', (done) => {
+  it('Returns client with id = 2', (done) => {
     request.post('/graphql')
     .auth(credentials.websiteUsername, credentials.websitePassword)
     .send({ query: `{
-      client(id: 200) {
+      client(id: 2) {
         ${props.join(' ')}
       }
     }`})

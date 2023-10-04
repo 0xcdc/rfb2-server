@@ -1,6 +1,6 @@
-import { loadAllCities, loadCityById } from './citySql';
-import { loadAllClients, loadClientsForHouseholdId } from './clientSql';
-import database from './database';
+import { loadAllCities, loadCityById } from './citySql.js';
+import { loadAllClients, loadClientsForHouseholdId } from './clientSql.js';
+import database from './database.js';
 
 export function incrementHouseholdVersion(conn, householdId) {
   return conn.execute(

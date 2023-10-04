@@ -20,7 +20,7 @@ my $credentials = <<"ENDSTRING";
 export const credentials = {
   mysqlUsername: '$db_username',
   mysqlPassword: '$db_password',
-  mysqlHost: process.env.GAE_ENV ? '' : 'localhost',
+  mysqlHost: process.env.GAE_ENV ? '' : '127.0.0.1',
   mysqlDatabase: 'foodbank',
 
   websiteUsername: '$web_username',

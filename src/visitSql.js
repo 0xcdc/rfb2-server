@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import database from './database';
+import database from './database.js';
 
 function selectVisitsForHousehold(householdId) {
   return database.all(

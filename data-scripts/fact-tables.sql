@@ -138,7 +138,7 @@ CREATE TABLE `keys` (
 
 LOCK TABLES `keys` WRITE;
 /*!40000 ALTER TABLE `keys` DISABLE KEYS */;
-INSERT INTO `keys` VALUES ('client',10616),('household',3797),('visit',118194);
+INSERT INTO `keys` VALUES ('client',1),('household',1),('visit',1);
 /*!40000 ALTER TABLE `keys` ENABLE KEYS */;
 UNLOCK TABLES;
 

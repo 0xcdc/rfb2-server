@@ -3,40 +3,39 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "babel-node src/index.js",
+    "start": "node src/index.js",
     "eslint": "eslint src/**",
     "migration": "babel-node data-scripts/migrations/migrations.js",
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon --exec babel-node src/index.js",
     "deploy": "gcloud app deploy",
     "create-db": "perl data-scripts/create-database.pl",
-    "create-dummy-data": "node data-scripts/create-dummy-data.mjs"
+    "create-dummy-data": "node data-scripts/create-dummy-data.mjs",
+    "geocode": "node data-scripts/lookupLatLng.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.22.20",
     "@babel/node": "^7.22.19",
-    "chai": "^4.3.7",
-    "eslint": "^8.42.0",
+    "chai": "^4.3.9",
+    "eslint": "^8.50.0",
     "eslint-config-google": "^0.14.0",
     "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-import": "^2.28.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.2.0",
     "node-fetch": "^3.3.2",
-    "nodemon": "^2.0.22",
+    "nodemon": "^3.0.1",
     "supertest": "^6.3.3"
   },
   "dependencies": {
-    "@babel/cli": "^7.22.5",
-    "@babel/preset-env": "^7.22.5",
     "express": "^4.18.2",
     "express-graphql": "^0.12.0",
-    "luxon": "^3.3.0",
-    "mysql2": "^3.3.3"
+    "luxon": "^3.4.3",
+    "mysql2": "^3.6.1"
   }
 }
