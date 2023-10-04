@@ -86,7 +86,7 @@ async function getClients() {
 
 async function main() {
   let clients = await getClients();
-  //clients = clients.slice(0, 1);
+  clients = clients.slice(0, 1);
   for(let i=0; i < clients.length; i++) {
     let c = clients[i];
     let location = await geocode(c.id, c.address);
