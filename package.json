@@ -7,9 +7,8 @@
   "scripts": {
     "start": "node src/index.js",
     "eslint": "eslint src/**",
-    "migration": "babel-node data-scripts/migrations/migrations.js",
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
-    "debug-start": "npx nodemon --exec babel-node src/index.js",
+    "debug-start": "npx nodemon src/index.js",
     "deploy": "gcloud app deploy",
     "create-db": "perl data-scripts/create-database.pl",
     "create-dummy-data": "node data-scripts/create-dummy-data.mjs",
