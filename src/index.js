@@ -1,11 +1,11 @@
+import { createHandler } from 'graphql-http/lib/use/express';
 import credentials from '../credentials.js';
+import { dirname } from 'path';
 import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import { resolvers } from './resolvers.js';
 import { typeDefs } from './types.js';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 // Have Node serve the files for our built React app
 app.use(express.static(path.resolve(__dirname, '../build')));
 
-app.use('/graphql', graphqlHTTP({
+app.use('/graphql', createHandler({
   schema: typeDefs,
   rootValue: resolvers,
   graphiql: true,
