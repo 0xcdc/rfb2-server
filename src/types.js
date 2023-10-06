@@ -38,6 +38,7 @@ export const typeDefs = buildSchema(`
     note: String!
     clients: [Client]
     city: City!
+    latlng: String
   }
 
   type LookupTable {

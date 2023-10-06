@@ -27,6 +27,7 @@ export const resolvers = {
   visitsForMonth: args => visitsForMonth(args.year, args.month),
   yesNo: args => lookupSet('yes_no', args.id),
   yesNos: args => lookupSet('yes_no'),
+  latlng: args => updateHousehold(args.household, args.inPlace),
   // Mutations:
   deleteClient: args => deleteClient(args.id),
   deleteVisit: args => deleteVisit(args.id),
