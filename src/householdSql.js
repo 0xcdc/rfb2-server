@@ -102,8 +102,8 @@ export function loadHouseholdById(id, version) {
 }
 
 export function updateHousehold({ household, inPlace }) {
-  //temporary fix
-  household['latlng'] = "";
+  // temporary fix
+  household.latlng = '';
   return database.transaction(conn => {
     if (household.id === -1) {
       return conn.upsert('household', household, { isVersioned: true });
