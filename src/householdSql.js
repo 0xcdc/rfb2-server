@@ -101,8 +101,16 @@ export function loadHouseholdById(id, version) {
   return loadById({ id, version });
 }
 
+// function to test if latlng is updated
+function calculateLatlng(household) {
+  // temporarily return an empty string
+  // const lat = 40.7128;
+  // const lng = -74.0060;
+  // return JSON.stringify({ lat, lng });
+  return '';
+}
+
 export function updateHousehold({ household, inPlace }) {
-  // temporary fix
   household.latlng = calculateLatlng(household);
   return database.transaction(conn => {
     if (household.id === -1) {
@@ -119,10 +127,3 @@ export function updateHousehold({ household, inPlace }) {
     }
   }).then( () => loadById(household));
 }
-// function to test if latlng is updated 
-function calculateLatlng(household) {
-  const lat = 40.7128; 
-  const lng = -74.0060; 
-  return `${lat},${lng}`;
-}
-
