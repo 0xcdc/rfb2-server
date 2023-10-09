@@ -59,7 +59,7 @@ const lastNames = [
   'Zevo',
 ];
 
-const address1 = [
+const addresses1 = [
 '123 Bellingham st',
 '1800 Bellaire blvd',
 '1900 Richmond blvd',
@@ -79,7 +79,7 @@ const address1 = [
 '100 1st Avenue',
 '5000 Ballard ave',
 ];
-const address2 = [
+const addresses2 = [
 ' ',
 'Suite C102',
 'Unit 4',
@@ -91,7 +91,7 @@ const address2 = [
 'Suite 200',
 'Suite 500',
 ];
-const cityId = [
+const cityIds = [
 0,
 1,
 2,
@@ -104,7 +104,7 @@ const cityId = [
 9,
 10,
 ];
-const zip = [
+const zips = [
 '98056',
 '98057',
 '98058',
@@ -166,10 +166,18 @@ function getRandomInt(min, max) {
 let firstNameIndex = 0;
 
 async function createHousehold(lastName) {
+const randomAddress1Index = Math.floor(Math.random()*addresses1.length);
+let address1 = addresses1[randomAddress1Index];
+const randomAddress2Index = Math.floor(Math.random()*addresses2.length);
+let address2 = addresses2[randomAddress2Index];
+const randomCityIdIndex = Math.floor(Math.random()* cityIds.length);
+let cityId = cityIds[randomCityIdIndex];
+const randomZipIndex = Math.floor(Math.random()* zips.length);
+let zip = zips[randomZipIndex];
   const createHouseholdGraphQL = `
   mutation{
     updateHousehold(
-      household: {  id: -1, address1: "", address2: "", cityId: 0, zip: "", incomeLevelId: 0, note: "" } , inPlace: false) {
+      household: {  id: -1, address1: "${address1}", address2: "${address2}", cityId: ${cityId}, zip: "${zip}", incomeLevelId: 0, note: "" } , inPlace: false) {
         id address1 address2 cityId zip incomeLevelId note
       }
   }`;
