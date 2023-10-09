@@ -26,6 +26,10 @@ export const typeDefs = buildSchema(`
     note: String
   },
 
+  type Credentials {
+    googleApiKey: String!
+  },
+
   type Household {
     id: Int!
     version: Int!
@@ -58,6 +62,7 @@ export const typeDefs = buildSchema(`
     cities: [City],
     client(id: Int!): Client,
     clients: [Client],
+    credentials: Credentials,
     household(id: Int!, version: Int): Household,
     households(ids: [Int!]!): [Household],
     ethnicities: [LookupTable],
