@@ -59,6 +59,63 @@ const lastNames = [
   'Zevo',
 ];
 
+const address1 = [
+'123 Bellingham st',
+'1800 Bellaire blvd',
+'1900 Richmond blvd',
+'300 Union ave se',
+'900 Bellevue st',
+'1000 Redmond rd',
+'234 Northup way',
+'321 Beechnut blvd',
+'7897 NE 8th st',
+'1258 SE 10th st',
+'8779 Broadway',
+'10000 Pike Street',
+'16857 Yesler',
+'7898 Alaskan Way',
+'9879 Denny Way',
+'4000 Pine Street',
+'100 1st Avenue',
+'5000 Ballard ave',
+];
+const address2 = [
+' ',
+'Suite C102',
+'Unit 4',
+'Suite D307',
+'Apt 302',
+'Room C501',
+'Building D1001',
+'Floor 5',
+'Suite 200',
+'Suite 500',
+];
+const cityId = [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+10,
+];
+const zip = [
+'98056',
+'98057',
+'98058',
+'98059',
+'98052',
+'98051',
+'98050',
+'98054',
+'98055',
+'98034',
+];
 
 class HTTPResponseError extends Error {
 	constructor(response) {
