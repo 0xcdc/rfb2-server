@@ -45,6 +45,10 @@ app.use('/graphql', createHandler({
   graphiql: true,
 }));
 
+app.get('/graphiql', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'graphiql.html'));
+});
+
 // All other GET requests not handled before will return our React app
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../build', 'index.html'));
