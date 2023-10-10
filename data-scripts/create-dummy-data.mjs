@@ -166,13 +166,13 @@ function getRandomInt(min, max) {
 let firstNameIndex = 0;
 
 async function createHousehold(lastName) {
-const randomAddress1Index = Math.floor(Math.random()*addresses1.length);
+const randomAddress1Index = getRandomInt(0, addresses1.length);
 let address1 = addresses1[randomAddress1Index];
-const randomAddress2Index = Math.floor(Math.random()*addresses2.length);
+const randomAddress2Index = getRandomInt(0, addresses2.length);
 let address2 = addresses2[randomAddress2Index];
-const randomCityIdIndex = Math.floor(Math.random()* cityIds.length);
+const randomCityIdIndex = getRandomInt(0, cityIds.length);
 let cityId = cityIds[randomCityIdIndex];
-const randomZipIndex = Math.floor(Math.random()* zips.length);
+const randomZipIndex = getRandomInt(0, zips.length);
 let zip = zips[randomZipIndex];
   const createHouseholdGraphQL = `
   mutation{
