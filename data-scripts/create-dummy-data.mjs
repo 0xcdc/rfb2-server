@@ -59,6 +59,63 @@ const lastNames = [
   'Zevo',
 ];
 
+const addresses1 = [
+'123 Bellingham st',
+'1800 Bellaire blvd',
+'1900 Richmond blvd',
+'300 Union ave se',
+'900 Bellevue st',
+'1000 Redmond rd',
+'234 Northup way',
+'321 Beechnut blvd',
+'7897 NE 8th st',
+'1258 SE 10th st',
+'8779 Broadway',
+'10000 Pike Street',
+'16857 Yesler',
+'7898 Alaskan Way',
+'9879 Denny Way',
+'4000 Pine Street',
+'100 1st Avenue',
+'5000 Ballard ave',
+];
+const addresses2 = [
+' ',
+'Suite C102',
+'Unit 4',
+'Suite D307',
+'Apt 302',
+'Room C501',
+'Building D1001',
+'Floor 5',
+'Suite 200',
+'Suite 500',
+];
+const cityIds = [
+0,
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+10,
+];
+const zips = [
+'98056',
+'98057',
+'98058',
+'98059',
+'98052',
+'98051',
+'98050',
+'98054',
+'98055',
+'98034',
+];
 
 class HTTPResponseError extends Error {
 	constructor(response) {
@@ -109,10 +166,18 @@ function getRandomInt(min, max) {
 let firstNameIndex = 0;
 
 async function createHousehold(lastName) {
+const randomAddress1Index = getRandomInt(0, addresses1.length);
+let address1 = addresses1[randomAddress1Index];
+const randomAddress2Index = getRandomInt(0, addresses2.length);
+let address2 = addresses2[randomAddress2Index];
+const randomCityIdIndex = getRandomInt(0, cityIds.length);
+let cityId = cityIds[randomCityIdIndex];
+const randomZipIndex = getRandomInt(0, zips.length);
+let zip = zips[randomZipIndex];
   const createHouseholdGraphQL = `
   mutation{
     updateHousehold(
-      household: {  id: -1, address1: "", address2: "", cityId: 0, zip: "", incomeLevelId: 0, note: "" } , inPlace: false) {
+      household: {  id: -1, address1: "${address1}", address2: "${address2}", cityId: ${cityId}, zip: "${zip}", incomeLevelId: 0, note: "" } , inPlace: false) {
         id address1 address2 cityId zip incomeLevelId note
       }
   }`;
