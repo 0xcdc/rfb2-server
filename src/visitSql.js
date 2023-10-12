@@ -7,7 +7,7 @@ function selectVisitsForHousehold(householdId) {
     SELECT *
     FROM visit
     WHERE householdId = :householdId`,
-    { householdId },
+    { householdId }
   );
 }
 
@@ -17,7 +17,7 @@ function selectVisitById(id) {
     SELECT *
     FROM visit
     WHERE id = :id`,
-    { id },
+    { id }
   );
 }
 
@@ -57,7 +57,7 @@ export function visitsForMonth(year, month) {
     `SELECT *
      FROM visit
      WHERE date >= :firstDay and date < :lastDay`,
-    { firstDay, lastDay },
+    { firstDay, lastDay }
   );
 }
 

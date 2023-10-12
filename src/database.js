@@ -61,7 +61,7 @@ class LoggingConnection {
       delete from ${tablename}
         where id = :id
           ${versionSQL}`,
-      { id, version },
+      { id, version }
     );
   }
 

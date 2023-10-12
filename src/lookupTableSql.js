@@ -6,7 +6,7 @@ function lookupItem(tableName, id) {
 SELECT *
 FROM ${tableName}
 where id = :id`,
-    { id },
+    { id }
   ).then( rows => rows?.[0]);
 }
 
@@ -19,6 +19,6 @@ export function lookupSet(tableName, id) {
     `
 SELECT *
 FROM ${tableName}
-ORDER BY id`,
+ORDER BY id`
   );
 }
