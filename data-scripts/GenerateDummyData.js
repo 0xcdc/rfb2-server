@@ -24,7 +24,7 @@ const firstNames = [
   'Wendy',
   'Xu',
   'Ying',
-  'Zed',
+  'Zed'
 ];
 
 const lastNames = [
@@ -53,7 +53,7 @@ const lastNames = [
   'Wild',
   'Xu',
   'Yi',
-  'Zevo',
+  'Zevo'
 ];
 
 const races = [
@@ -65,13 +65,13 @@ const races = [
   'Hawaiian-Native or Pacific Islander',
   'White or Caucasian',
   'Other Race',
-  'Multi-Racial (2+ identified)',
+  'Multi-Racial (2+ identified)'
 ];
 
 const militaryService = [
   'None',
   'Partners of persons with active military service',
-  'US Military Service (past or present)',
+  'US Military Service (past or present)'
 ];
 
 const ethnicity = ['Hispanic, Latino', 'Other'];
@@ -82,7 +82,7 @@ const income = [
   '<$24,000',
   '$24,000 - <$40,000',
   '$40,000 - <$64,000',
-  '>$64,000',
+  '>$64,000'
 ];
 
 let nHousehold = 0;
