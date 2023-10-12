@@ -72,7 +72,7 @@ export function loadAllHouseholds(ids) {
       select 1
       from household h2
       where h.id = h2.id
-        and h2.version > h.version)`,
+        and h2.version > h.version)`
   );
   const clients = loadAllClients();
   const cities = loadAllCities();
@@ -81,7 +81,7 @@ export function loadAllHouseholds(ids) {
     .then( ([households, clients, cities]) => {
       const citiesMap = new Map(cities.map(city => [city.id, city]));
       const householdMap = new Map(
-        households.map(h => [h.id, { ...h, city: citiesMap.get(h.cityId) }]),
+        households.map(h => [h.id, { ...h, city: citiesMap.get(h.cityId) }])
       );
 
       clients.forEach(client => {

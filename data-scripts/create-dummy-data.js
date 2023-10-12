@@ -29,7 +29,7 @@ const firstNames = [
   'Wendy',
   'Xu',
   'Ying',
-  'Zed'
+  'Zed',
 ];
 
 const lastNames = [
@@ -58,7 +58,7 @@ const lastNames = [
   'Wild',
   'Xu',
   'Yi',
-  'Zevo'
+  'Zevo',
 ];
 
 const addresses1 = [
@@ -79,7 +79,7 @@ const addresses1 = [
   '9879 Denny Way',
   '4000 Pine Street',
   '100 1st Avenue',
-  '5000 Ballard ave'
+  '5000 Ballard ave',
 ];
 const addresses2 = [
   ' ',
@@ -91,7 +91,7 @@ const addresses2 = [
   'Building D1001',
   'Floor 5',
   'Suite 200',
-  'Suite 500'
+  'Suite 500',
 ];
 const cityIds = [
   0,
@@ -104,7 +104,7 @@ const cityIds = [
   7,
   8,
   9,
-  10
+  10,
 ];
 const zips = [
   '98056',
@@ -116,7 +116,7 @@ const zips = [
   '98050',
   '98054',
   '98055',
-  '98034'
+  '98034',
 ];
 
 class HTTPResponseError extends Error {
@@ -265,6 +265,6 @@ async function createHousehold(lastName) {
   }
 }
 
-Promise.all(lastNames.slice(0, 1).map( lastName => createHousehold(lastName) ));
+Promise.all(lastNames.map( lastName => createHousehold(lastName) ));
 
 
