@@ -11,7 +11,7 @@
     "debug-start": "npx nodemon src/index.js",
     "deploy": "gcloud app deploy",
     "create-db": "perl data-scripts/create-database.pl",
-    "create-dummy-data": "node data-scripts/create-dummy-data.mjs",
+    "create-dummy-data": "node data-scripts/create-dummy-data.js",
     "geocode": "node data-scripts/lookupLatLng.js",
     "cloudmysql": "data-scripts/cloudmysql.sh",
     "mysql": "data-scripts/mysql.sh"
