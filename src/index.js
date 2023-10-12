@@ -42,7 +42,6 @@ app.use(express.static(path.resolve(__dirname, '../build')));
 app.use('/graphql', createHandler({
   schema: typeDefs,
   rootValue: resolvers,
-  graphiql: true,
 }));
 
 app.get('/graphiql', (req, res) => {
