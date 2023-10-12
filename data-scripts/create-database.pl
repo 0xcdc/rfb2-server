@@ -1,68 +1,88 @@
 use strict;
+use warnings;
+use JSON;
 
-print "what username do you want to use to login to the foodbank database? ";
-my $db_username = <STDIN>;
-chomp $db_username;
+if  ( ! -f "credentials.js" )  {
+  print "what username do you want to use to login to the foodbank database? ";
+  my $mysqlUsername = <STDIN>;
+  chomp $mysqlUsername;
 
-print "what password do you want to use to login to the foodbank database? ";
-my $db_password = <STDIN>;
-chomp $db_password;
+  print "what password do you want to use to login to the foodbank database? ";
+  my $mysqlPassword = <STDIN>;
+  chomp $mysqlPassword;
 
-print "what username do you want to use to login to the foodbank website (blank for none)? ";
-my $web_username = <STDIN>;
-chomp $web_username;
+  print "what username do you want to use to login to the foodbank website (blank for none)? ";
+  my $websiteUsername = <STDIN>;
+  chomp $websiteUsername;
 
-print "what password do you want to use to login to the foodbank website (blank for none)? ";
-my $web_password = <STDIN>;
-chomp $web_password;
+  print "what password do you want to use to login to the foodbank website (blank for none)? ";
+  my $websitePassword = <STDIN>;
+  chomp $websitePassword;
 
-print "what google project do you (blank for none)? ";
-my $google_project_name = <STDIN>;
-chomp $google_project_name;
+  print "what google project do you (blank for none)? ";
+  my $googleProjectName = <STDIN>;
+  chomp $googleProjectName;
 
-print "what is the api key to use with the google project (blank for none)?";
-my $api_key= <STDIN>;
-chomp $api_key;
+  print "what is the api key to use with the google project (blank for none)?";
+  my $googleApiKey= <STDIN>;
+  chomp $googleApiKey;
 
-
-
-my $credentials = <<"ENDSTRING";
-export const credentials = {
-  mysqlUsername: '$db_username',
-  mysqlPassword: '$db_password',
+  my $credentials = <<ENDSTRING;
+export const credentials = {\
+  mysqlUsername: '$mysqlUsername',
+  mysqlPassword: '$mysqlPassword',
   mysqlHost: process.env.GAE_ENV ? '' : '127.0.0.1',
   mysqlDatabase: 'foodbank',
 
-  websiteUsername: '$web_username',
-  websitePassword: '$web_password',
+  websiteUsername: '$websiteUsername',
+  websitePassword: '$websitePassword',
 
-  googleProjectName: '$google_project_name',
-  googleApiKey: '$api_key',
+  googleProjectName: '$googleProjectName',
+  googleApiKey: '$googleApiKey',
 };
 
 export default credentials;
 ENDSTRING
 
-print "overwritting credentials.js file\n";
-open(CREDENTIALS,'>','credentials.js') or die $!;
-print CREDENTIALS $credentials;
-close CREDENTIALS;
+  print "overwritting credentials.js file\n";
+  open(CREDENTIALS,'>','credentials.js') or die $!;
+  print CREDENTIALS $credentials;
+  close CREDENTIALS;
+}
 
-print "creating a new foodbank database\n";
-print `sudo mysql < data-scripts/latest_schema.sql`;
+my $json = `node --input-type="module" -e '
+import {credentials} from "./credentials.js";
+console.log(JSON.stringify(credentials));
+'`;
+my %credentials = %{decode_json($json)};
 
-print "populating fact tables\n";
-print `sudo mysql < data-scripts/fact-tables.sql`;
+sub execCmd {
+  my ($desc, $cmd) = @_;
+  print "\n", $desc, "\n";
+  print $cmd, "\n";
+  print `$cmd`, "\n";
+}
+
+&execCmd(
+  "creating a new foodbank database",
+  "sudo mysql < data-scripts/latest_schema.sql"
+);
+
+&execCmd(
+  "populating fact tables",
+  "sudo mysql < data-scripts/fact-tables.sql"
+);
 
 my $create_user_sql = <<ENDSTRING;
-DROP USER IF EXISTS \'$db_username\'\@\'localhost\';
-CREATE USER \'$db_username\'\@'localhost' IDENTIFIED BY \'$db_password\';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, REFERENCES, ALTER ON *.* TO \'$db_username\'\@\'localhost\' WITH GRANT OPTION;
+DROP USER IF EXISTS \'$credentials{mysqlUsername}\'\@\'localhost\';
+CREATE USER \'$credentials{mysqlUsername}\'\@'localhost' IDENTIFIED BY \'$credentials{mysqlPassword}\';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, REFERENCES, ALTER ON *.* TO \'$credentials{mysqlUsername}\'\@\'localhost\' WITH GRANT OPTION;
+
 ENDSTRING
 
-print "creating db user\n";
-my $cmd = "echo \"$create_user_sql\" | sudo mysql";
-print `$cmd`;
-
+&execCmd(
+  "creating db user",
+  "echo \"$create_user_sql\" | sudo mysql"
+);
 
 print "\nDONE!\n";
