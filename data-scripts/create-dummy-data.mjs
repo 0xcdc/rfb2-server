@@ -1,4 +1,6 @@
+import credentials from '../credentials.js';
 import fetch from 'node-fetch';
+import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
 
 const firstNames = [
@@ -136,12 +138,12 @@ const checkStatus = response => {
 async function graphQL(query, key) {
   const url = `http://localhost:4000/graphql`;
   const body = JSON.stringify({ query });
-
   let response = await fetch(url, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
+      'Authorization': 'Basic ' + Buffer.from(credentials.websiteUsername + ":" + credentials.websitePassword).toString('base64'),
     },
     body,
   });
