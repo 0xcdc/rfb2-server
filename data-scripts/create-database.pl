@@ -55,7 +55,7 @@ console.log(JSON.stringify(credentials));
 '`;
 
 my %credentials;
-while ($json =~ s/\"(\w+)\"\:\"(\w*)\"//m) {
+while ($json =~ s/\"(\w+)\"\:\"([^"]*)\"//) {
   $credentials{$1} = $2;
 }
 
