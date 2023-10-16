@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use JSON;
 
 if  ( ! -f "credentials.js" )  {
   print "what username do you want to use to login to the foodbank database? ";
@@ -54,7 +53,11 @@ my $json = `node --input-type="module" -e '
 import {credentials} from "./credentials.js";
 console.log(JSON.stringify(credentials));
 '`;
-my %credentials = %{decode_json($json)};
+
+my %credentials;
+while ($json =~ s/\"(\w+)\"\:\"([^"]*)\"//) {
+  $credentials{$1} = $2;
+}
 
 sub execCmd {
   my ($desc, $cmd) = @_;
