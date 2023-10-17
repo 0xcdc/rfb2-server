@@ -3,6 +3,9 @@ import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import { exec as execAsync } from 'child_process';
 
+
+
+
 const exec = promisify(execAsync);
 
 async function main() {
@@ -45,6 +48,8 @@ async function main() {
     });
   }
 
+
+
   await execCmd('Creating a new foodbank database', 'sudo mysql < data-scripts/latest_schema.sql');
   await execCmd('Populating fact tables', 'sudo mysql < data-scripts/fact-tables.sql');
 
@@ -71,9 +76,9 @@ async function askQuestion(question) {
   });
 }
 
-async function fileExists(filePath) {
+async function fileExists(fileName) {
   try {
-    await fs.access(filePath);
+    await fs.access(fileName);
     return true;
   } catch (error) {
     return false;
