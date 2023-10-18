@@ -63,12 +63,13 @@ async function main() {
     );
   }
 
-  const { stdout: credentialsObject } =
+  const { stdout } =
     await exec(`node --input-type="module" -e '
       import {credentials} from "./credentials.js";
       console.log(JSON.stringify(credentials));'
     `);
 
+  const credentialsObject = JSON.parse(stdout);
 
   await execCmd('Creating a new foodbank database', 'sudo mysql < data-scripts/latest_schema.sql');
   await execCmd('Populating fact tables', 'sudo mysql < data-scripts/fact-tables.sql');
