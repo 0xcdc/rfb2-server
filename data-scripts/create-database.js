@@ -2,7 +2,7 @@ import { exec as execAsync } from 'child_process';
 import { existsSync } from 'node:fs';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
-import readline from 'readline';
+import readline from 'readline/promises';
 
 
 const exec = promisify(execAsync);
@@ -31,10 +31,11 @@ function execCmd(description, cmd) {
       console.error(error);
     });
 }
+
 async function main() {
   const credentialsFile = 'credentials.js';
 
-  if (!(await fileExists(credentialsFile))) {
+  if (!(fileExists(credentialsFile))) {
     const mysqlUsername = await askQuestion('What username do you want to use to login to the foodbank database? ');
     const mysqlPassword = await askQuestion('What password do you want to use to login to the foodbank database? ');
     const websiteUsername = await askQuestion(
@@ -55,11 +56,11 @@ async function main() {
       googleApiKey,
     };
 
+    console.log('Overwriting credentials.js file');
     await fs.writeFile(
       credentialsFile,
       `export const credentials = ${JSON.stringify(credentials, null, 2)};\nexport default credentials;\n`
     );
-    console.log('Overwriting credentials.js file');
   }
 
   const { stdout: credentialsObject } =
@@ -74,9 +75,9 @@ async function main() {
 
   const createUserSql = `
     DROP USER IF EXISTS '${credentialsObject.mysqlUsername}'@'localhost';
-    CREATE USER 
+    CREATE USER
     '${credentialsObject.mysqlUsername}'@'localhost' IDENTIFIED BY '${credentialsObject.mysqlPassword}';
-    GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, REFERENCES, 
+    GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, REFERENCES,
     ALTER ON *.* TO '${credentialsObject.mysqlUsername}'@'localhost' WITH GRANT OPTION;
   `;
   await execCmd('Creating db user', `echo "${createUserSql}" | sudo mysql`);
