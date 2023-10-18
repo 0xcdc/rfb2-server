@@ -1,4 +1,5 @@
 import { createHandler } from 'graphql-http/lib/use/express';
+import compression from 'compression';
 import credentials from '../credentials.js';
 import { dirname } from 'path';
 import express from 'express';
@@ -6,12 +7,14 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import { resolvers } from './resolvers.js';
 import { typeDefs } from './types.js';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+
 const app = express();
 
 app.use('/graphql', express.json());
+app.use(compression());
 app.use((req, res, next) => {
   console.log({ url: req.url, body: req.body });
   if (credentials.websiteUsername === '' && credentials.websitePassword === '') return next();
