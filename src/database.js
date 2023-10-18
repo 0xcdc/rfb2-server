@@ -25,8 +25,15 @@ class LoggingConnection {
   execute(sql, params) {
     const p = params || {};
     console.log(sql);
-    console.log(p);
+    console.log(`parameters: `, p);
+    const start = new Date();
     return this.connection.execute(sql, p)
+      .then( value => {
+        const end = new Date();
+        const duration = end - start;
+        console.log(`execution time (ms): ${duration}`);
+        return value;
+      })
       .catch(err => console.error(err));
   }
 
