@@ -36,9 +36,15 @@ export function incrementHouseholdVersion(conn, householdId) {
 function selectById({ id, version }) {
   version = version ? Promise.resolve(version) : database.getMaxVersion('household', id);
   const sql = `
-    select *
-    from household
-    where household.id = :id
+  select h.*, coalesce(last_visit, '') as lastVisit
+    from household h
+    left join (
+      select householdId, max(date) as last_visit
+      from visit
+      group by householdId
+    ) as v
+      on v.householdId = h.id
+    where h.id = :id
       and version = :version`;
   return version
     .then( version => database.all(sql, { id, version }))
@@ -66,8 +72,14 @@ function loadById({ id, version }) {
 export function loadAllHouseholds(ids) {
   const households = database.all(
     `
-    select *
+    select h.*, coalesce(last_visit, '') as lastVisit
     from household h
+    left join (
+      select householdId, max(date) as last_visit
+      from visit
+      group by householdId
+    ) as v
+      on v.householdId = h.id
     where not exists (
       select 1
       from household h2
