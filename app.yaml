@@ -15,6 +15,7 @@ runtime: nodejs18
 
 vpc_access_connector:
   name: projects/client-checkin-application/locations/us-west1/connectors/connector1
+  egress_setting: all-traffic
 
 handlers:
 - url: /.*
