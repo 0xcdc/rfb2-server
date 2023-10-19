@@ -1,6 +1,5 @@
 import compression from 'compression';
 import { createHandler } from 'graphql-http/lib/use/express';
-import compression from 'compression';
 import credentials from '../credentials.js';
 import { dirname } from 'path';
 import express from 'express';
