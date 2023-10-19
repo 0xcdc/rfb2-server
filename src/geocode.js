@@ -20,7 +20,7 @@ const checkStatus = response => {
 export async function geocode(address) {
   const geocodeUrl = new URL(`https://maps.googleapis.com/maps/api/geocode/json`);
   geocodeUrl.searchParams.append('address', address);
-  geocodeUrl.searchParams.append('key', credentials.googleApiKey);
+  geocodeUrl.searchParams.append('key', credentials.googleGeoCodeApiKey);
   const response = await fetch(geocodeUrl, {
     method: 'GET',
     headers: {

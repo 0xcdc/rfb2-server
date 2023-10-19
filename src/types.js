@@ -27,7 +27,7 @@ export const typeDefs = buildSchema(`
   },
 
   type Credentials {
-    googleApiKey: String!
+    googleMapsApiKey: String!
   },
 
   type Household {

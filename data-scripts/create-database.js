@@ -52,7 +52,8 @@ async function main() {
       websiteUsername,
       websitePassword,
       googleProjectName,
-      googleApiKey,
+      googleMapsApiKey: googleApiKey,
+      googleGeoCodeApiKey: googleApiKey,
     };
 
     console.log('Overwriting credentials.js file');
