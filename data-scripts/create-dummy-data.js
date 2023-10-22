@@ -1,7 +1,5 @@
-import { Buffer } from 'node:buffer';
 import { DateTime } from 'luxon';
-import credentials from '../credentials.js';
-import fetch from 'node-fetch';
+import { graphQL } from '../src/fetch.js';
 
 const firstNames = [
   'Able',
@@ -118,47 +116,6 @@ const zips = [
   '98055',
   '98034',
 ];
-
-class HTTPResponseError extends Error {
-  constructor(response) {
-    super(`HTTP Error Response: ${response.status} ${response.statusText}`);
-    this.response = response;
-  }
-}
-
-const checkStatus = response => {
-  if (response.ok) {
-    // response.status >= 200 && response.status < 300
-    return response;
-  } else {
-    throw new HTTPResponseError(response);
-  }
-};
-
-async function graphQL(query, key) {
-  const url = `http://localhost:4000/graphql`;
-  const body = JSON.stringify({ query });
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-      'Authorization':
-        'Basic ' + Buffer.from(credentials.websiteUsername + ':' + credentials.websitePassword).toString('base64'),
-    },
-    body,
-  });
-  try {
-    checkStatus(response);
-    const json = await response.json();
-    return json.data[key];
-  } catch (error) {
-    console.error(error);
-
-    const errorBody = await error.response.text();
-    console.error(`Error body: ${errorBody}`);
-  }
-}
 
 function getRandomInt(min, max) {
   min = Math.ceil(min);
