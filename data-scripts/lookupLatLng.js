@@ -1,76 +1,4 @@
-import { credentials } from '../credentials.js';
-import fetch from 'node-fetch';
-
-const apiKey = credentials.googleApiKey;
-
-class HTTPResponseError extends Error {
-  constructor(response) {
-    super(`HTTP Error Response: ${response.status} ${response.statusText}`);
-    this.response = response;
-  }
-}
-
-const checkStatus = response => {
-  if (response.ok) {
-    // response.status >= 200 && response.status < 300
-    return response;
-  } else {
-    throw new HTTPResponseError(response);
-  }
-};
-
-async function geocode(id, address) {
-  const geocodeUrl = new URL(`https://maps.googleapis.com/maps/api/geocode/json`);
-  geocodeUrl.searchParams.append('address', address);
-  geocodeUrl.searchParams.append('key', apiKey);
-  const response = await fetch(geocodeUrl, {
-    method: 'GET',
-    headers: {
-      'Accept': 'application/json',
-    },
-  });
-  try {
-    checkStatus(response);
-    const json = await response.json();
-    if (json.status == 'OK') {
-      const { location } = json.results[0].geometry;
-      return { id, location };
-    } else {
-      console.error(json);
-      return { id, location: null };
-    }
-  } catch (error) {
-    console.error(error);
-
-    const errorBody = await error.response.text();
-    console.error(`Error body: ${errorBody}`);
-    return null;
-  }
-}
-
-async function graphQL(query, key) {
-  const url = `http://localhost:4000/graphql`;
-  const body = JSON.stringify({ query });
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
-    },
-    body,
-  });
-  try {
-    checkStatus(response);
-    const json = await response.json();
-    return json.data[key];
-  } catch (error) {
-    console.error(error);
-
-    const errorBody = await error.response.text();
-    console.error(`Error body: ${errorBody}`);
-  }
-}
+import { geocode, graphQL } from '../src/fetch.js';
 
 async function getClients() {
   const query = `{households(ids: []) {id  address1 address2 city{name} zip}}`;
@@ -88,7 +16,7 @@ async function main() {
   clients = clients.slice(0, 1);
   for (let i=0; i < clients.length; i++) {
     const c = clients[i];
-    const location = await geocode(c.id, c.address);
+    const location = await geocode(c.address);
     console.log(location);
   }
 }

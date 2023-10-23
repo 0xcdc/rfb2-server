@@ -1,7 +1,7 @@
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllClients, loadClientsForHouseholdId } from './clientSql.js';
 import database from './database.js';
-import { geocode } from './geocode.js';
+import { geocode } from './fetch.js';
 
 export function incrementHouseholdVersion(conn, householdId) {
   return conn.execute(

@@ -5,7 +5,6 @@ import { promisify } from 'util';
 import readline from 'readline';
 //import readline from 'readline/promises';
 
-
 const exec = promisify(execAsync);
 
 function fileExists(fileName) {
@@ -54,7 +53,8 @@ async function main() {
       websiteUsername,
       websitePassword,
       googleProjectName,
-      googleApiKey,
+      googleMapsApiKey: googleApiKey,
+      googleGeoCodeApiKey: googleApiKey,
     };
 
     console.log('Overwriting credentials.js file');

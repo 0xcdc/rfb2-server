@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import { credentials } from '../credentials.js';
 import fetch from 'node-fetch';
 
@@ -20,7 +21,7 @@ const checkStatus = response => {
 export async function geocode(address) {
   const geocodeUrl = new URL(`https://maps.googleapis.com/maps/api/geocode/json`);
   geocodeUrl.searchParams.append('address', address);
-  geocodeUrl.searchParams.append('key', credentials.googleApiKey);
+  geocodeUrl.searchParams.append('key', credentials.googleGeoCodeApiKey);
   const response = await fetch(geocodeUrl, {
     method: 'GET',
     headers: {
@@ -46,4 +47,28 @@ export async function geocode(address) {
   }
 }
 
+export async function graphQL(query, key) {
+  const url = `http://localhost:4000/graphql`;
+  const body = JSON.stringify({ query });
 
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'Authorization':
+        'Basic ' + Buffer.from(credentials.websiteUsername + ':' + credentials.websitePassword).toString('base64'),
+    },
+    body,
+  });
+  try {
+    checkStatus(response);
+    const json = await response.json();
+    return json.data[key];
+  } catch (error) {
+    console.error(error);
+
+    const errorBody = await error.response.text();
+    console.error(`Error body: ${errorBody}`);
+  }
+}
