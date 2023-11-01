@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import readline from 'readline';
-//import readline from 'readline/promises';
+// import readline from 'readline/promises';
 
 const exec = promisify(execAsync);
 
