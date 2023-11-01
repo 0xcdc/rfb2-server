@@ -1,6 +1,6 @@
 import { geocode, graphQL } from '../src/fetch.js';
 
-async function getClients() {
+async function getHouseholds() {
   const query = `{households(ids: []) {id  address1 address2 city{name} zip}}`;
 
   const households = await graphQL(query, 'households');
@@ -12,11 +12,11 @@ async function getClients() {
 }
 
 async function main() {
-  let clients = await getClients();
-  clients = clients.slice(0, 1);
-  for (let i=0; i < clients.length; i++) {
-    const c = clients[i];
-    const location = await geocode(c.address);
+  let households = await getHouseholds();
+  households = households.slice(0, 1);
+  for (let i=0; i < households.length; i++) {
+    const h = households[i];
+    const location = await geocode(h.address);
     console.log(location);
   }
 }
