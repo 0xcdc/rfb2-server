@@ -211,10 +211,11 @@ async function createHousehold(lastName) {
     const { year } = date;
     const { month } = date;
     const { day } = date;
-
+    const randomYear = getRandomInt(0, 2);
+    const selectedYear = randomYear === 0 ? year : year - 1;
     const recordVisitGraphQL= `
     mutation{recordVisit(
-        householdId: ${householdId}, year: ${year}, month: ${month}, day: ${day}){date}}`;
+        householdId: ${householdId}, year: ${selectedYear}, month: ${month}, day: ${day}){date}}`;
 
     console.log('recording visit on ' + date.toISODate());
     await graphQL(recordVisitGraphQL, 'recordVisit');
