@@ -16,7 +16,13 @@ function askQuestion(question) {
     input: process.stdin,
     output: process.stdout,
   });
-  return rl.question(question).finally( () => rl.close());
+
+  return new Promise( (resolve, reject) => {
+    rl.question(question, (answer) => {
+      resolve(answer);
+      rl.close();
+    })
+  });
 }
 
 function execCmd(description, cmd) {
