@@ -105,6 +105,7 @@ export const typeDefs = buildSchema(`
     zip: String!
     incomeLevelId: Int!
     note: String!
+    latLng: String
   }
 
   type Mutation {
