@@ -132,10 +132,8 @@ function calculateLatlng(household) {
   });
 }
 
-export function updateHousehold({ household, inPlace, latLng }) {
-// if latLng is specified, basically use it directly, otherwise call geocode
-  if (latLng) {
-    household.latlng = latLng;
+export function updateHousehold({ household, inPlace }) {
+  if (household.latLng) {
     return database.transaction(conn => {
       if (household.id === -1) {
         return conn.upsert('household', household, { isVersioned: true });
