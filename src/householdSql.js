@@ -1,7 +1,6 @@
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllClients, loadClientsForHouseholdId } from './clientSql.js';
 import database from './database.js';
-import { geocode } from './fetch.js';
 
 export function incrementHouseholdVersion(conn, householdId) {
   return conn.execute(
@@ -114,50 +113,19 @@ export function loadHouseholdById(id, version) {
   return loadById({ id, version });
 }
 
-function calculateLatlng(household) {
-  return loadCityById(household.cityId).then( city => {
-    const address =
-      household.address1 + ' ' +
-      household.address2 + ' ' +
-      city.name + '  ' + household.zip;
-
-    return geocode(address).then( location => {
-      if (location) {
-        const { lat, lng } = location;
-        return JSON.stringify({ lat, lng });
-      } else {
-        return '';
-      }
-    });
-  });
-}
-
 export function updateHousehold({ household, inPlace }) {
-  let latLngPromise;
-  if (household.latLng) {
-  latLngPromise = Promise.resolve(household.latLng);
-  } else {
-  latLngPromise = calculateLatlng(household);
-  }
-  latLngPromise.then( latLng => {
-      console.log(JSON.stringify(latLng));
-      household.latLng = latLng;
-      return database.transaction(conn => {
-        if (household.id === -1) {
-          return conn.upsert('household', household, { isVersioned: true });
-        } else {
-          const dbOp = inPlace ?
-            conn.getMaxVersion('household', household.id) :
-            incrementHouseholdVersion(conn, household.id);
+  return database.transaction(conn => {
+    if (household.id === -1) {
+      return conn.upsert('household', household, { isVersioned: true });
+    } else {
+      const dbOp = inPlace ?
+        conn.getMaxVersion('household', household.id) :
+        incrementHouseholdVersion(conn, household.id);
 
-          return dbOp.then( version => {
-            household.version = version;
-            return conn.update('household', household);
-          });
-        }
-      }).then( () => loadById(household));
-    });
+      return dbOp.then( version => {
+        household.version = version;
+        return conn.update('household', household);
+      });
     }
-  
-
-
+  }).then( () => loadById(household));
+}
