@@ -135,29 +135,26 @@ function calculateLatlng(household) {
 export function updateHousehold({ household, inPlace }) {
   let latLngPromise;
   if (household.latLng) {
-  latLngPromise = Promise.resolve(household.latLng);
+    latLngPromise = Promise.resolve(household.latLng);
   } else {
-  latLngPromise = calculateLatlng(household);
+    latLngPromise = calculateLatlng(household);
   }
-  latLngPromise.then( latLng => {
-      console.log(JSON.stringify(latLng));
-      household.latLng = latLng;
-      return database.transaction(conn => {
-        if (household.id === -1) {
-          return conn.upsert('household', household, { isVersioned: true });
-        } else {
-          const dbOp = inPlace ?
-            conn.getMaxVersion('household', household.id) :
-            incrementHouseholdVersion(conn, household.id);
+  return latLngPromise.then( latLng => {
+    console.log(JSON.stringify(latLng));
+    household.latLng = latLng;
+    return database.transaction(conn => {
+      if (household.id === -1) {
+        return conn.upsert('household', household, { isVersioned: true });
+      } else {
+        const dbOp = inPlace ?
+          conn.getMaxVersion('household', household.id) :
+          incrementHouseholdVersion(conn, household.id);
 
-          return dbOp.then( version => {
-            household.version = version;
-            return conn.update('household', household);
-          });
-        }
-      }).then( () => loadById(household));
+        return dbOp.then( version => {
+          household.version = version;
+          return conn.update('household', household);
+        });
+      }
     });
-    }
-  
-
-
+  }).then( () => loadById(household));
+}
