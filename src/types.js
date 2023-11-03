@@ -42,7 +42,7 @@ export const typeDefs = buildSchema(`
     note: String!
     clients: [Client]
     city: City!
-    latlng: String
+    latlng: String!
     lastVisit: String
   }
 
@@ -104,8 +104,8 @@ export const typeDefs = buildSchema(`
     cityId: Int!
     zip: String!
     incomeLevelId: Int!
+    latlng: String!
     note: String!
-    latLng: String
   }
 
   type Mutation {
