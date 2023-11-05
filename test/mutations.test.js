@@ -22,6 +22,7 @@ describe('mutations', () => {
         cityId: 1,
         zip: "98052",
         incomeLevelId: 1,
+        latlng: "",
         note: "three"
       }) {
         id
@@ -99,7 +100,8 @@ describe('mutations', () => {
         cityId: 2,
         zip: "98008",
         incomeLevelId: 2,
-        note: "six"
+        note: "six",
+        latlng: "",
       }) {
         id
         version
@@ -174,7 +176,8 @@ describe('mutations', () => {
         cityId: 2,
         zip: "98008",
         incomeLevelId: 2,
-        note: "six"
+        note: "six",
+        latlng: "",
       }, inPlace: true) {
         id
         version
