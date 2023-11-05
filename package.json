@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "eslint": "eslint src/**.js data-scripts/**.js",
+    "eslint": "eslint src/**.js data-scripts/**.js test/**.js",
     "test": "mocha -r @babel/register -r regenerator-runtime/runtime test/*.test.js",
     "debug-start": "npx nodemon src/index.js",
     "deploy": "gcloud app deploy",

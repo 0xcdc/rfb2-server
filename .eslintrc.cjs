@@ -2,6 +2,8 @@ module.exports = {
   'env': {
     'es2021': true,
     'node': true,
+    'mocha': true,
+    'browser': false,
   },
   'extends': [
     'google',
