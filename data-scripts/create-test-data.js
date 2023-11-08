@@ -144,6 +144,7 @@ async function createHousehold(lastName) {
         cityId: ${cityId},
         zip: "${zip}",
         incomeLevelId: 0,
+        latlng: "",
         note: "" },
       inPlace: false
     ) {
@@ -205,7 +206,7 @@ async function createHousehold(lastName) {
   let visitCount = getRandomInt(1, 8);
   let date = DateTime.now().setZone('America/Los_Angeles');
   while (visitCount > 0) {
-    const weeksBack = getRandomInt(1, 2);
+    const weeksBack = getRandomInt(0, 2);
     date = date.minus({ weeks: weeksBack });
 
     const { year } = date;
