@@ -6,6 +6,7 @@ export const typeDefs = buildSchema(`
     name: String!
     break_out: Int!
     in_king_county: Int!
+    latlng: String!
   }
 
   type Client{
