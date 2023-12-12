@@ -61,12 +61,10 @@ export function visitsForMonth(year, month) {
   );
 }
 
-export function recordVisit(args) {
+export async function recordVisit(args) {
   const { conn } = args;
   if (!conn) {
-    return database.transaction( conn => recordVisit({ ...args, conn }))
-      .then( id => selectVisitById(id))
-      .then( rows => rows[0]);
+    return database.transaction( conn => recordVisit({ ...args, conn }));
   } else {
     const { householdId, year, month, day } = args;
     let date =null;
@@ -77,12 +75,23 @@ export function recordVisit(args) {
     }
     date = date.toISODate();
 
-    return conn.pullNextKey('visit')
-      .then( id =>
-        conn.getMaxVersion('household', householdId)
-          .then( householdVersion => conn.insert('visit', { date, id, householdId, householdVersion }))
-          .then( () => id)
-      );
+    const id = await conn.pullNextKey('visit');
+    const householdVersion = await conn.getMaxVersion('household', householdId);
+    await conn.execute(`
+      INSERT INTO visit (id, date, householdId, householdVersion)
+        SELECT :id, :date, :householdId, :householdVersion
+        WHERE NOT EXISTS (
+          SELECT *
+          FROM visit
+          WHERE date = :date
+            AND householdId = :householdId
+       )`, { date, id, householdId, householdVersion });
+    const rows = await conn.all(`
+      SELECT *
+        FROM visit
+        WHERE date = :date
+          AND householdId = :householdId`, { date, householdId });
+    return rows[0];
   }
 }
 
