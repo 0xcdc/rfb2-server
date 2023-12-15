@@ -1,5 +1,6 @@
 import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql.js';
-import { deleteVisit, firstVisitsForYear, recordVisit, visitsForHousehold, visitsForMonth } from './visitSql.js';
+import { deleteVisit, firstVisitsForYear, loadClientVisits, recordVisit, visitsForHousehold, visitsForMonth }
+  from './visitSql.js';
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
 import { credentials } from '../credentials.js';
@@ -11,6 +12,7 @@ export const resolvers = {
   city: args => loadCityById(args.id),
   client: args => loadClientById(args.id),
   clients: args => loadAllClients(),
+  clientVisitsForYear: args => loadClientVisits(args.year),
   credentials: args => ({ googleMapsApiKey: credentials.googleMapsApiKey }),
   ethnicities: args => lookupSet('ethnicity'),
   ethnicity: args => lookupSet('ethnicity', args.id),

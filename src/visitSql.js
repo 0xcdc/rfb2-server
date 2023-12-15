@@ -105,3 +105,16 @@ export function deleteVisit(id) {
         .then( () => rows[0]);
     });
 }
+
+export function loadClientVisits(year) {
+  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
+  const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
+
+  return database.all(
+    `SELECT *
+     FROM client_visit
+     WHERE date >= :firstDay and date <= :lastDay
+     ORDER BY date`,
+    { firstDay, lastDay }
+  );
+}

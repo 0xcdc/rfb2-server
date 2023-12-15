@@ -27,6 +27,24 @@ export const typeDefs = buildSchema(`
     note: String
   },
 
+  type ClientVisit {
+    age: Int
+    birthYear: String!
+    cityId: Int!
+    clientId: Int!
+    date: String!,
+    disabled: Int!
+    ethnicityId: Int!
+    genderId: Int!
+    householdId: Int!
+    militaryStatusId: Int!
+    raceId: Int!
+    refugeeImmigrantStatus: Int!
+    speaksEnglish: Int!
+    visitId: Int!
+    zip: String!,
+  }
+
   type Credentials {
     googleMapsApiKey: String!
   },
@@ -63,6 +81,7 @@ export const typeDefs = buildSchema(`
     city(id: Int!): City,
     cities: [City],
     client(id: Int!): Client,
+    clientVisitsForYear(year: Int!): [ClientVisit],
     clients: [Client],
     credentials: Credentials,
     household(id: Int!, version: Int): Household,
