@@ -5,8 +5,8 @@ select cl.id as clientId, disabled, raceId, birthYear, genderId, refugeeImmigran
          case
            when birthyear = '' then null
            when birthyear < 1900 then null
-           when birthyear > year(curdate()) then null
-           else year(curdate()) - birthyear 
+           when birthyear > year(v.date) then null
+           else year(v.date) - birthyear
          end as dec(3)) as age
   from visit v
   join household h
