@@ -65,6 +65,16 @@ export const typeDefs = buildSchema(`
     lastVisit: String
   }
 
+  type HouseholdVisit {
+    cityId: Int!
+    date: String!
+    homeless: Int!
+    householdId: Int!
+    incomeLevelId: Int!
+    visitId: Int!
+    zip: String!
+  }
+
   type LookupTable {
     id: Int!
     value: String!
@@ -86,6 +96,7 @@ export const typeDefs = buildSchema(`
     credentials: Credentials,
     household(id: Int!, version: Int): Household,
     households(ids: [Int!]!): [Household],
+    householdVisitsForYear(year: Int!): [HouseholdVisit],
     ethnicities: [LookupTable],
     ethnicity(id: Int!): LookupTable,
     firstVisitsForYear(year: Int!): [Visit],

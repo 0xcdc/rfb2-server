@@ -118,3 +118,16 @@ export function loadClientVisits(year) {
     { firstDay, lastDay }
   );
 }
+
+export function loadHouseholdVisits(year) {
+  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
+  const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
+
+  return database.all(
+    `SELECT *
+     FROM household_visit
+     WHERE date >= :firstDay and date <= :lastDay
+     ORDER BY date`,
+    { firstDay, lastDay }
+  );
+}

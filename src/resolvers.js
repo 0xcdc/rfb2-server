@@ -1,6 +1,8 @@
 import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql.js';
-import { deleteVisit, firstVisitsForYear, loadClientVisits, recordVisit, visitsForHousehold, visitsForMonth }
-  from './visitSql.js';
+import {
+  deleteVisit, firstVisitsForYear, loadClientVisits, loadHouseholdVisits, recordVisit, visitsForHousehold,
+  visitsForMonth
+} from './visitSql.js';
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
 import { credentials } from '../credentials.js';
@@ -21,6 +23,7 @@ export const resolvers = {
   genders: args => lookupSet('gender'),
   household: args => loadHouseholdById(args.id, args.version),
   households: args => loadAllHouseholds(args.ids),
+  householdVisitsForYear: args => loadHouseholdVisits(args.year),
   incomeLevel: args => lookupSet('income_level', args.id),
   incomeLevels: args => lookupSet('income_level'),
   militaryStatus: args => lookupSet('militaryStatus', args.id),
