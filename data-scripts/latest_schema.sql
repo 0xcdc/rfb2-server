@@ -1,8 +1,12 @@
--- MySQL dump 10.13  Distrib 8.0.33, for Linux (x86_64)
+DROP DATABASE IF EXISTS `foodbank`;
+CREATE DATABASE `foodbank`;
+USE `foodbank`;
+
+-- MySQL dump 10.13  Distrib 8.0.35, for Linux (x86_64)
 --
 -- Host: localhost    Database: foodbank
 -- ------------------------------------------------------
--- Server version	8.0.33-0ubuntu0.22.04.2
+-- Server version	8.0.31-google
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,10 +18,8 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
-DROP DATABASE IF EXISTS `foodbank`;
-CREATE DATABASE `foodbank`;
-USE `foodbank`;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
 -- Table structure for table `city`
@@ -31,6 +33,7 @@ CREATE TABLE `city` (
   `name` varchar(255) NOT NULL,
   `break_out` int NOT NULL,
   `in_king_county` int NOT NULL,
+  `latlng` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -56,9 +59,36 @@ CREATE TABLE `client` (
   `militaryStatusId` int NOT NULL,
   `ethnicityId` int NOT NULL,
   `householdId` int NOT NULL,
-  PRIMARY KEY (`id`,`version`)
+  PRIMARY KEY (`id`,`version`),
+  KEY `client_household_id` (`householdId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Temporary view structure for view `client_visit`
+--
+
+DROP TABLE IF EXISTS `client_visit`;
+/*!50001 DROP VIEW IF EXISTS `client_visit`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `client_visit` AS SELECT 
+ 1 AS `clientId`,
+ 1 AS `disabled`,
+ 1 AS `raceId`,
+ 1 AS `birthYear`,
+ 1 AS `genderId`,
+ 1 AS `refugeeImmigrantStatus`,
+ 1 AS `speaksEnglish`,
+ 1 AS `militaryStatusId`,
+ 1 AS `ethnicityId`,
+ 1 AS `visitId`,
+ 1 AS `date`,
+ 1 AS `householdId`,
+ 1 AS `cityId`,
+ 1 AS `zip`,
+ 1 AS `age`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `ethnicity`
@@ -106,7 +136,7 @@ CREATE TABLE `household` (
   `zip` varchar(255) DEFAULT NULL,
   `note` varchar(255) DEFAULT NULL,
   `incomeLevelId` int NOT NULL,
-  `latlng` varchar(255) NOT NULL, /* add a new colume to save location of the household*/
+  `latlng` varchar(255) NOT NULL,
   PRIMARY KEY (`id`,`version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -131,18 +161,22 @@ CREATE TABLE `household_client_list` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `households_visited_last_year`
+-- Temporary view structure for view `household_visit`
 --
 
-DROP TABLE IF EXISTS `households_visited_last_year`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
+DROP TABLE IF EXISTS `household_visit`;
+/*!50001 DROP VIEW IF EXISTS `household_visit`*/;
+SET @saved_cs_client     = @@character_set_client;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `households_visited_last_year` (
-  `id` int NOT NULL,
-  `version` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50001 CREATE VIEW `household_visit` AS SELECT 
+ 1 AS `householdId`,
+ 1 AS `incomeLevelId`,
+ 1 AS `visitId`,
+ 1 AS `date`,
+ 1 AS `cityId`,
+ 1 AS `zip`,
+ 1 AS `homeless`*/;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `income_level`
@@ -229,6 +263,7 @@ CREATE TABLE `visit` (
   `householdId` int NOT NULL,
   `householdVersion` int NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `date` (`date`,`householdId`),
   KEY `householdId` (`householdId`,`householdVersion`),
   KEY `visit_household_id` (`householdId`),
   CONSTRAINT `visit_ibfk_1` FOREIGN KEY (`householdId`, `householdVersion`) REFERENCES `household` (`id`, `version`)
@@ -249,6 +284,43 @@ CREATE TABLE `yes_no` (
   UNIQUE KEY `value` (`value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Final view structure for view `client_visit`
+--
+
+/*!50001 DROP VIEW IF EXISTS `client_visit`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`dbuser`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `client_visit` AS select `cl`.`id` AS `clientId`,`cl`.`disabled` AS `disabled`,`cl`.`raceId` AS `raceId`,`cl`.`birthYear` AS `birthYear`,`cl`.`genderId` AS `genderId`,`cl`.`refugeeImmigrantStatus` AS `refugeeImmigrantStatus`,`cl`.`speaksEnglish` AS `speaksEnglish`,`cl`.`militaryStatusId` AS `militaryStatusId`,`cl`.`ethnicityId` AS `ethnicityId`,`v`.`id` AS `visitId`,`v`.`date` AS `date`,`v`.`householdId` AS `householdId`,`h`.`cityId` AS `cityId`,`h`.`zip` AS `zip`,cast((case when (`cl`.`birthYear` = '') then NULL when (`cl`.`birthYear` < 1900) then NULL when (`cl`.`birthYear` > year(`v`.`date`)) then NULL else (year(`v`.`date`) - `cl`.`birthYear`) end) as decimal(3,0)) AS `age` from (((`visit` `v` join `household` `h` on(((`h`.`id` = `v`.`householdId`) and (`h`.`version` = `v`.`householdVersion`)))) join `household_client_list` `hcl` on(((`h`.`id` = `hcl`.`householdId`) and (`h`.`version` = `hcl`.`householdVersion`)))) join `client` `cl` on(((`cl`.`id` = `hcl`.`clientId`) and (`cl`.`version` = `hcl`.`clientVersion`)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `household_visit`
+--
+
+/*!50001 DROP VIEW IF EXISTS `household_visit`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`dbuser`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `household_visit` AS select `h`.`id` AS `householdId`,`h`.`incomeLevelId` AS `incomeLevelId`,`v`.`id` AS `visitId`,`v`.`date` AS `date`,`h`.`cityId` AS `cityId`,`h`.`zip` AS `zip`,(case when (`h`.`address1` = '') then 1 else 0 end) AS `homeless` from (`visit` `v` join `household` `h` on(((`h`.`id` = `v`.`householdId`) and (`h`.`version` = `v`.`householdVersion`)))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -259,4 +331,4 @@ CREATE TABLE `yes_no` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-07-08 21:12:13
+-- Dump completed on 2023-12-29 20:33:02

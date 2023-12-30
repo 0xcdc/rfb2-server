@@ -82,11 +82,10 @@ async function main() {
   await execCmd('Populating fact tables', 'sudo mysql < data-scripts/fact-tables.sql');
 
   const createUserSql = `
-    DROP USER IF EXISTS '${credentialsObject.mysqlUsername}'@'localhost';
+    DROP USER IF EXISTS '${credentialsObject.mysqlUsername}'@'%';
     CREATE USER
-    '${credentialsObject.mysqlUsername}'@'localhost' IDENTIFIED BY '${credentialsObject.mysqlPassword}';
-    GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, REFERENCES,
-    ALTER ON *.* TO '${credentialsObject.mysqlUsername}'@'localhost' WITH GRANT OPTION;
+    '${credentialsObject.mysqlUsername}'@'%' IDENTIFIED BY '${credentialsObject.mysqlPassword}';
+    GRANT ALL PRIVILEGES ON foodbank.* TO '${credentialsObject.mysqlUsername}'@'%';
   `;
   await execCmd('Creating db user', `echo "${createUserSql}" | sudo mysql`);
   console.log('\nDONE!\n');
