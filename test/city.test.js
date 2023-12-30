@@ -1,8 +1,8 @@
-import chai from 'chai';
+import { Should } from 'chai';
 import credentials from '../credentials.js';
 import supertest from 'supertest';
 
-const should = chai.should();
+const should = Should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
