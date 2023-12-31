@@ -2,7 +2,7 @@ import { Should } from 'chai';
 import credentials from '../credentials.js';
 import supertest from 'supertest';
 
-const should = Should();
+const should = new Should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
