@@ -181,6 +181,10 @@ class Database {
       });
   }
 
+  upsert(tableName, obj, options) {
+    return this.withConnection( conn => conn.upsert(tableName, obj, options));
+  }
+
   withConnection(fn) {
     return this.pool.promise().getConnection()
       .then( conn => {
