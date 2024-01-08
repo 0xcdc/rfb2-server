@@ -75,8 +75,27 @@ export const typeDefs = buildSchema(`
     zip: String!
   }
 
+  type Language {
+    id: Int!
+    name: String!
+    code: String!
+  }
+
   type LookupTable {
     id: Int!
+    value: String!
+  }
+
+  type Prompt {
+    id: Int!,
+    tag: String!,
+    value: String!,
+  }
+
+  type Translation {
+    set: String!
+    id: Int!
+    languageId: Int!
     value: String!
   }
 
@@ -104,10 +123,14 @@ export const typeDefs = buildSchema(`
     genders: [LookupTable],
     incomeLevel(id: Int!): LookupTable,
     incomeLevels: [LookupTable],
+    languages: [Language],
     militaryStatus(id: Int!): LookupTable,
     militaryStatuses: [LookupTable],
+    prompts: [Prompt],
     race(id: Int!): LookupTable,
     races: [LookupTable],
+    translationSets: [String],
+    translations: [Translation],
     visitsForHousehold(householdId: Int!): [Visit],
     visitsForMonth(year: Int!, month: Int!): [Visit],
     yesNo(id: Int!): LookupTable,
@@ -145,5 +168,6 @@ export const typeDefs = buildSchema(`
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
     updateClient(client: ClientInput!, inPlace: Boolean): Client,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
+    updatePrompt(id: Int!, tag: String!, value: String!): Prompt
   }
 `);

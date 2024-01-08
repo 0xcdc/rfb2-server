@@ -5,6 +5,8 @@ import {
 } from './visitSql.js';
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
+import { loadAllLanguages, loadAllPrompts, loadAllTranslations, loadTranslationTables, updatePrompt }
+  from './translationSql.js';
 import { credentials } from '../credentials.js';
 import { lookupSet } from './lookupTableSql.js';
 
@@ -26,10 +28,14 @@ export const resolvers = {
   householdVisitsForYear: args => loadHouseholdVisits(args.year),
   incomeLevel: args => lookupSet('income_level', args.id),
   incomeLevels: args => lookupSet('income_level'),
+  languages: args => loadAllLanguages(),
   militaryStatus: args => lookupSet('militaryStatus', args.id),
   militaryStatuses: args => lookupSet('militaryStatus'),
+  prompts: args => loadAllPrompts(),
   race: args => lookupSet('race', args.id),
   races: args => lookupSet('race'),
+  translationSets: args => loadTranslationTables(),
+  translations: args => loadAllTranslations(),
   visitsForHousehold: args => visitsForHousehold(args.householdId),
   visitsForMonth: args => visitsForMonth(args.year, args.month),
   yesNo: args => lookupSet('yes_no', args.id),
@@ -40,4 +46,5 @@ export const resolvers = {
   recordVisit: args => recordVisit(args),
   updateClient: args => updateClient(args),
   updateHousehold: args => updateHousehold(args),
+  updatePrompt: args => updatePrompt(args),
 };
