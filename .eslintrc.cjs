@@ -29,6 +29,8 @@ module.exports = {
     'arrow-parens': ['error', 'as-needed'],
     'prefer-destructuring': 'error',
     'sort-imports': 'error',
-    'no-use-before-define': 'error',
+    'no-use-before-define': ['error', {
+      'functions': false,
+    }]
   },
 };
