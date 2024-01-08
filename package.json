@@ -33,6 +33,7 @@
     "supertest": "^6.3.3"
   },
   "dependencies": {
+    "@google-cloud/translate": "^8.0.2",
     "express": "^4.18.2",
     "graphql-http": "^1.22.0",
     "luxon": "^3.4.4",
