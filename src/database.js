@@ -50,12 +50,20 @@ class LoggingConnection {
     );
   }
 
-  insert(tablename, values) {
+  insert(tablename, values, upsert) {
     const keys = Object.keys(values);
+    let sql = `
+insert into ${tablename} (${keys.join(', ')})
+  values(${keys.map(k => `:${k}`).join(', ')})`;
+
+    if (upsert) {
+      sql += `
+ON DUPLICATE KEY UPDATE
+${keys.map( k=> `${k} = :${k}`).join(', ')}`;
+    }
+
     return this.execute(
-      `
-      insert into ${tablename} (${keys.join(', ')})
-        values(${keys.map(k => `:${k}`).join(', ')})`,
+      sql,
       values
     );
   }
@@ -136,7 +144,7 @@ class LoggingConnection {
         });
     } else {
       // vanilla update
-      dbOps = this.update(tableName, obj);
+      dbOps = this.insert(tableName, obj, true);
     }
     return dbOps.then( () => obj.id);
   }
