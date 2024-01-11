@@ -86,12 +86,6 @@ export const typeDefs = buildSchema(`
     value: String!
   }
 
-  type Prompt {
-    id: Int!,
-    tag: String!,
-    value: String!,
-  }
-
   type Translation {
     set: String!
     id: Int!
@@ -121,12 +115,12 @@ export const typeDefs = buildSchema(`
     firstVisitsForYear(year: Int!): [Visit],
     gender(id: Int!): LookupTable,
     genders: [LookupTable],
+    googleTranslate(value: String!, code: String!): String,
     incomeLevel(id: Int!): LookupTable,
     incomeLevels: [LookupTable],
     languages: [Language],
     militaryStatus(id: Int!): LookupTable,
     militaryStatuses: [LookupTable],
-    prompts: [Prompt],
     race(id: Int!): LookupTable,
     races: [LookupTable],
     translationSets: [String],
@@ -168,6 +162,6 @@ export const typeDefs = buildSchema(`
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
     updateClient(client: ClientInput!, inPlace: Boolean): Client,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
-    updatePrompt(id: Int!, tag: String!, value: String!): Prompt
+    updateTranslation(set: String!, id: Int!, languageId: Int!, value: String!): Translation
   }
 `);

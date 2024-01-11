@@ -5,9 +5,9 @@ import {
 } from './visitSql.js';
 import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
-import { loadAllLanguages, loadAllPrompts, loadAllTranslations, loadTranslationTables, updatePrompt }
-  from './translationSql.js';
+import { loadAllLanguages, loadAllTranslations, loadTranslationTables, updateTranslation } from './translationSql.js';
 import { credentials } from '../credentials.js';
+import { googleTranslate } from './googleTranslate.js';
 import { lookupSet } from './lookupTableSql.js';
 
 export const resolvers = {
@@ -23,6 +23,7 @@ export const resolvers = {
   firstVisitsForYear: args => firstVisitsForYear(args.year),
   gender: args => lookupSet('gender', args.id),
   genders: args => lookupSet('gender'),
+  googleTranslate: args => googleTranslate(args),
   household: args => loadHouseholdById(args.id, args.version),
   households: args => loadAllHouseholds(args.ids),
   householdVisitsForYear: args => loadHouseholdVisits(args.year),
@@ -31,7 +32,6 @@ export const resolvers = {
   languages: args => loadAllLanguages(),
   militaryStatus: args => lookupSet('militaryStatus', args.id),
   militaryStatuses: args => lookupSet('militaryStatus'),
-  prompts: args => loadAllPrompts(),
   race: args => lookupSet('race', args.id),
   races: args => lookupSet('race'),
   translationSets: args => loadTranslationTables(),
@@ -46,5 +46,5 @@ export const resolvers = {
   recordVisit: args => recordVisit(args),
   updateClient: args => updateClient(args),
   updateHousehold: args => updateHousehold(args),
-  updatePrompt: args => updatePrompt(args),
+  updateTranslation: args => updateTranslation(args),
 };

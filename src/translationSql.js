@@ -1,13 +1,5 @@
 import database from './database.js';
 
-export function loadPromptById(id) {
-  return database.all(`
-SELECT *
-FROM prompt
-where id = :id`, { id })
-    .then( rows => rows[0] );
-}
-
 export function loadAllLanguages() {
   return database.all(`
 SELECT *
@@ -15,11 +7,28 @@ FROM language`
   );
 }
 
-export function loadAllPrompts() {
-  return database.all(`
-SELECT *
-FROM prompt`
-  );
+async function loadTranslation({ set, id, languageId }) {
+  const [languageField, tableName, languageFilter, params] = languageId == 0 ?
+    [
+      '0 as languageId',
+      set,
+      '',
+      { id },
+    ] :
+    [
+      'languageId',
+      `${set}_translation`,
+      'AND languageId = :languageId',
+      { id, languageId },
+    ];
+
+  const sql = `
+SELECT '${set}' as \`set\`, id, ${languageField}, value
+FROM ${tableName}
+WHERE id = :id
+${languageFilter}`;
+
+  return database.all(sql, params).then( rows => rows?.[0] );
 }
 
 export async function loadAllTranslations() {
@@ -44,8 +53,36 @@ FROM translation_table`)
     .then( rows => rows.map( row => row.tableName ));
 }
 
-export async function updatePrompt(args) {
-  const { id, tag, value } = args;
-  const returnedId = await database.upsert('prompt', { id, tag, value });
-  return loadPromptById(returnedId);
+export async function updateTranslation(args) {
+  const { id, set, languageId, value } = args;
+
+  // security check
+  // - ensure that the specified 'set' (aka tablename) is one of the tables allowed
+  // security check
+
+  const validSets = await loadTranslationTables();
+  if (!validSets.some( s => s == set)) {
+    throw Error(`invalid set: ${set}`);
+  }
+
+  const params = { id };
+  if (languageId != 0) {
+    params.languageId = languageId;
+  }
+
+  const tableName = languageId == 0 ? set : `${set}_translation`;
+  if (value == '' || value == null) {
+    // we're actually deleting the translation
+    if (languageId == 0) {
+      throw Error('cannot delete an English translation');
+    }
+
+    return database.delete(tableName, params).then( () => null);
+  } else {
+    params.value = value;
+
+    await database.upsert(tableName, params);
+    const updatedTranslation = loadTranslation({ set, id, languageId });
+    return updatedTranslation;
+  }
 }
