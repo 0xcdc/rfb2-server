@@ -7,23 +7,35 @@ FROM language`
   );
 }
 
+async function validateSet(set) {
+  const validSets = await loadTranslationTables();
+  if (!validSets.some( s => s == set)) {
+    throw Error(`invalid set: ${set}`);
+  }
+
+}
+
 async function loadTranslation({ set, id, languageId }) {
+  // security check
+  // - ensure that the specified 'set' (aka tablename) is one of the tables allowed
+  // security check
+  await validateSet(set);
   const [languageField, tableName, languageFilter, params] = languageId == 0 ?
     [
       '0 as languageId',
       set,
       '',
-      { id },
+      { id, set },
     ] :
     [
       'languageId',
       `${set}_translation`,
       'AND languageId = :languageId',
-      { id, languageId },
+      { id, languageId, set },
     ];
 
   const sql = `
-SELECT '${set}' as \`set\`, id, ${languageField}, value
+SELECT :set as \`set\`, id, ${languageField}, value
 FROM ${tableName}
 WHERE id = :id
 ${languageFilter}`;
@@ -59,11 +71,7 @@ export async function updateTranslation(args) {
   // security check
   // - ensure that the specified 'set' (aka tablename) is one of the tables allowed
   // security check
-
-  const validSets = await loadTranslationTables();
-  if (!validSets.some( s => s == set)) {
-    throw Error(`invalid set: ${set}`);
-  }
+  await validateSet(set);
 
   const params = { id };
   if (languageId != 0) {
