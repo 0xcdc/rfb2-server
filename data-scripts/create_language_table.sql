@@ -23,7 +23,8 @@ insert into language (id, name, code) values
   (3, 'Russian', 'ru'),
   (4, 'Somali', 'so'),
   (5, 'Spanish', 'es'),
-  (6, 'Vietnamese', 'vi');
+  (6, 'Ukrainian', 'uk'),
+  (7, 'Vietnamese', 'vi');
 
 create table prompt (
   id int not null,
