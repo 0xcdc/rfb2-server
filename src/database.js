@@ -123,10 +123,11 @@ ${keys.map( k=> `${k} = :${k}`).join(', ')}`;
   upsert(tableName, obj, options) {
     console.log('upsert');
     const isVersioned = options && options.isVersioned && true;
+    const pullKey = options && options.pullKey && true;
 
     // first, if it's a new row (id == -1) then we need to pull a new key and do an insert
     let dbOps = null;
-    if (obj.id === -1) {
+    if (pullKey && obj.id === -1) {
       dbOps = this.pullNextKey(tableName)
         .then( nextKey => {
           obj.id = nextKey;

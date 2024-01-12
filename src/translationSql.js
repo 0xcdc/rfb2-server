@@ -12,7 +12,6 @@ async function validateSet(set) {
   if (!validSets.some( s => s == set)) {
     throw Error(`invalid set: ${set}`);
   }
-
 }
 
 async function loadTranslation({ set, id, languageId }) {

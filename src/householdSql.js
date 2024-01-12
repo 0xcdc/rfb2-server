@@ -116,7 +116,7 @@ export function loadHouseholdById(id, version) {
 export function updateHousehold({ household, inPlace }) {
   return database.transaction(conn => {
     if (household.id === -1) {
-      return conn.upsert('household', household, { isVersioned: true });
+      return conn.upsert('household', household, { isVersioned: true, pullKey: true });
     } else {
       const dbOp = inPlace ?
         conn.getMaxVersion('household', household.id) :

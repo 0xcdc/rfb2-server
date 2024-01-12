@@ -105,7 +105,7 @@ export function updateClient({ client, inPlace }) {
         incrementHouseholdVersion(conn, client.householdId) :
         conn.getMaxVersion('household', client.householdId))
         .then( householdVersion =>
-          conn.upsert('client', client, { isVersioned: true })
+          conn.upsert('client', client, { isVersioned: true, pullKey: true })
             .then( () =>
               (isNewClient) ?
                 conn.execute(
