@@ -53,7 +53,8 @@ SELECT '${name}' as \`set\`, id, languageId, value
   from ${name}_translation
 `);
 
-  const sql = tableSqls.join('UNION ALL');
+  const sql = tableSqls.join('UNION ALL') + `
+order by \`set\`, languageId, id`;
   return database.all(sql);
 }
 
