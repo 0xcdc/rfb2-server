@@ -24,7 +24,8 @@ export const typeDefs = buildSchema(`
     householdSize: Int!
     cardColor: String!
     lastVisit: String
-    note: String
+    phoneNumber: String!
+    note: String!
   },
 
   type ClientVisit {
@@ -143,6 +144,7 @@ export const typeDefs = buildSchema(`
       speaksEnglish: Int!
       militaryStatusId: Int!
       ethnicityId: Int!
+      phoneNumber: String!
   }
 
   input HouseholdInput {
