@@ -30,14 +30,14 @@
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.2.0",
     "nodemon": "^3.0.2",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.4"
   },
   "dependencies": {
-    "@google-cloud/translate": "^8.0.2",
+    "@google-cloud/translate": "^8.0.3",
     "express": "^4.18.2",
     "graphql-http": "^1.22.0",
     "luxon": "^3.4.4",
-    "mysql2": "^3.6.5",
+    "mysql2": "^3.7.0",
     "node-fetch": "^3.3.2"
   }
 }
