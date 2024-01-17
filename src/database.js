@@ -190,6 +190,10 @@ class Database {
       });
   }
 
+  pullNextKey(tableName) {
+    return this.withConnection( conn => conn.pullNextKey(tableName) );
+  }
+
   upsert(tableName, obj, options) {
     return this.withConnection( conn => conn.upsert(tableName, obj, options));
   }

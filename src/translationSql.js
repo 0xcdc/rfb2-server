@@ -45,13 +45,27 @@ ${languageFilter}`;
 export async function loadAllTranslations() {
   const tables = await loadTranslationTables();
 
-  const tableSqls = tables.map( name => `
-SELECT '${name}' as \`set\`, id, 0 as languageId, value
+  const tableSqls = tables
+    .filter( t => t != 'prompt')
+    .map( name => `
+SELECT '${name}' as \`set\`, '' as tag, id, 0 as languageId, value
   FROM ${name}
 UNION ALL 
-SELECT '${name}' as \`set\`, id, languageId, value
+SELECT '${name}' as \`set\`, '' as tag, id, languageId, value
   from ${name}_translation
 `);
+
+  const promptSql = `
+SELECT 'prompt' as \`set\`, tag, id, 0 as languageId, value
+  FROM prompt
+UNION ALL
+SELECT 'prompt' as \`set\`, tag, pt.id, pt.languageId, pt.value
+  from prompt_translation pt
+  join prompt p
+    on p.id = pt.id
+`;
+
+  tableSqls.push(promptSql);
 
   const sql = tableSqls.join('UNION ALL') + `
 order by \`set\`, languageId, id`;

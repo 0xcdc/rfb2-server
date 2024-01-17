@@ -7,6 +7,7 @@ import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
 import { loadAllLanguages, loadAllTranslations, loadTranslationTables, updateTranslation } from './translationSql.js';
 import { credentials } from '../credentials.js';
+import database from './database.js';
 import { googleTranslate } from './googleTranslate.js';
 import { lookupSet } from './lookupTableSql.js';
 
@@ -43,6 +44,7 @@ export const resolvers = {
   // Mutations:
   deleteClient: args => deleteClient(args.id),
   deleteVisit: args => deleteVisit(args.id),
+  pullNextKey: args => database.pullNextKey(args.entity),
   recordVisit: args => recordVisit(args),
   updateClient: args => updateClient(args),
   updateHousehold: args => updateHousehold(args),

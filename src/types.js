@@ -89,6 +89,7 @@ export const typeDefs = buildSchema(`
 
   type Translation {
     set: String!
+    tag: String!
     id: Int!
     languageId: Int!
     value: String!
@@ -161,6 +162,7 @@ export const typeDefs = buildSchema(`
   type Mutation {
     deleteClient(id: Int!): Client,
     deleteVisit(id: Int!): Visit,
+    pullNextKey(entity: String!): Int,
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
     updateClient(client: ClientInput!, inPlace: Boolean): Client,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
