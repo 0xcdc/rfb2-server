@@ -128,9 +128,10 @@ export function updateClient({ client, inPlace }) {
   } else {
     dbOp = database.transaction( conn => {
       return conn.getMaxVersion('client', client.id)
-        .then( version => {
-          client.version = version;
-          return conn.update('client', client);
+        .then( nextVersion => {
+          client.version = nextVersion;
+          const { id, version, ...values } = client;
+          return conn.update('client', { id, version }, values);
         });
     });
   }

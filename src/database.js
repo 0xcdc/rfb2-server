@@ -106,17 +106,19 @@ ${keys.map( k=> `${k} = :${k}`).join(', ')}`;
     return this.connection.rollback();
   }
 
-  update(tablename, values) {
-    const keys = Object.keys(values);
-    const hasVersion = keys.includes('version');
-    const versionSql = hasVersion ? 'and version = :version' : '';
-    const updateColumns = keys.filter(v => v !== 'id' && v !== 'versoin');
+  update(tablename, keys, values) {
+    const keyColumns = Object.keys(keys);
+    if (keyColumns.length == 0) throw Error('keys missing to update');
+    const valueColumns = Object.keys(values);
+    if (valueColumns.length == 0) throw Error('values missing to update');
+
     const sql = `
-      update ${tablename}
-        set ${updateColumns.map(k => `${k}=:${k}`).join(',\n        ')}
-        where id = :id
-          ${versionSql}`;
-    return this.execute(sql, values);
+UPDATE ${tablename}
+  SET ${valueColumns.map( k => `${k}=:${k}`).join(',\n      ')}
+  WHERE ${keyColumns.map( k => `${k}=:${k}`).join('\n    AND ')}
+
+`;
+    return this.execute(sql, { ...keys, ...values });
   }
 
 
@@ -192,6 +194,10 @@ class Database {
 
   pullNextKey(tableName) {
     return this.withConnection( conn => conn.pullNextKey(tableName) );
+  }
+
+  update(tableName, keys, values) {
+    return this.withConnection( conn => conn.update(tableName, keys, values));
   }
 
   upsert(tableName, obj, options) {

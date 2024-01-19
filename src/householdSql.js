@@ -122,9 +122,10 @@ export function updateHousehold({ household, inPlace }) {
         conn.getMaxVersion('household', household.id) :
         incrementHouseholdVersion(conn, household.id);
 
-      return dbOp.then( version => {
-        household.version = version;
-        return conn.update('household', household);
+      return dbOp.then( nextVersion => {
+        household.version = nextVersion;
+        const { id, version, ...values } = household;
+        return conn.update('household', { id, version }, values);
       });
     }
   }).then( () => loadById(household));
