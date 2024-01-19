@@ -1,5 +1,7 @@
 import database from './database.js';
 
+const English = 0;
+
 export function loadAllLanguages() {
   return database.all(`
 SELECT *
@@ -19,9 +21,9 @@ async function loadTranslation({ set, id, languageId }) {
   // - ensure that the specified 'set' (aka tablename) is one of the tables allowed
   // security check
   await validateSet(set);
-  const [languageField, tableName, languageFilter, params] = languageId == 0 ?
+  const [languageField, tableName, languageFilter, params] = languageId == English ?
     [
-      '0 as languageId',
+      `${English} as languageId`,
       set,
       '',
       { id, set },
@@ -48,7 +50,7 @@ export async function loadAllTranslations() {
   const tableSqls = tables
     .filter( t => t != 'prompt')
     .map( name => `
-SELECT '${name}' as \`set\`, '' as tag, id, 0 as languageId, value
+SELECT '${name}' as \`set\`, '' as tag, id, ${English} as languageId, value
   FROM ${name}
 UNION ALL 
 SELECT '${name}' as \`set\`, '' as tag, id, languageId, value
@@ -56,7 +58,7 @@ SELECT '${name}' as \`set\`, '' as tag, id, languageId, value
 `);
 
   const promptSql = `
-SELECT 'prompt' as \`set\`, tag, id, 0 as languageId, value
+SELECT 'prompt' as \`set\`, tag, id, ${English} as languageId, value
   FROM prompt
 UNION ALL
 SELECT 'prompt' as \`set\`, tag, pt.id, pt.languageId, pt.value
@@ -87,23 +89,28 @@ export async function updateTranslation(args) {
   // security check
   await validateSet(set);
 
-  const params = { id };
-  if (languageId != 0) {
-    params.languageId = languageId;
+  const keys = { id };
+  if (languageId != English) {
+    keys.languageId = languageId;
   }
 
-  const tableName = languageId == 0 ? set : `${set}_translation`;
+  const tableName = languageId == English ? set : `${set}_translation`;
   if (value == '' || value == null) {
     // we're actually deleting the translation
-    if (languageId == 0) {
+    if (languageId == English) {
       throw Error('cannot delete an English translation');
     }
 
-    return database.delete(tableName, params).then( () => null);
+    return database.delete(tableName, keys).then( () => null);
   } else {
-    params.value = value;
+    const values = { value };
 
-    await database.upsert(tableName, params);
+    // we can't upsert english b/c we don't have the tag,
+    // OTOH, we don't need to upsert english b/c we know it always exists
+    // so we can just update it
+    await languageId == English ?
+      database.update(tableName, keys, values) :
+      database.upsert(tableName, { ...keys, ...values });
     const updatedTranslation = loadTranslation({ set, id, languageId });
     return updatedTranslation;
   }
