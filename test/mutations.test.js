@@ -237,7 +237,8 @@ describe('mutations', () => {
             refugeeImmigrantStatus: 1,
             speaksEnglish: 1,
             militaryStatusId: 1,
-            ethnicityId: 1}) {
+            ethnicityId: 1,
+            phoneNumber: ""}) {
               id
               householdId
               name
@@ -306,7 +307,8 @@ describe('mutations', () => {
             refugeeImmigrantStatus: 0,
             speaksEnglish: 0,
             militaryStatusId: 2,
-            ethnicityId: 2}) {
+            ethnicityId: 2,
+            phoneNumber: "123"}) {
               id
               householdId
               name
@@ -318,6 +320,7 @@ describe('mutations', () => {
               speaksEnglish
               militaryStatusId
               ethnicityId
+              phoneNumber
             }
           }
        ` })
@@ -338,6 +341,7 @@ describe('mutations', () => {
         res.body.data.updateClient.should.have.property('speaksEnglish');
         res.body.data.updateClient.should.have.property('militaryStatusId');
         res.body.data.updateClient.should.have.property('ethnicityId');
+        res.body.data.updateClient.should.have.property('phoneNumber');
 
         res.body.data.updateClient.id.should.equal(newClientId);
         res.body.data.updateClient.householdId.should.equal(newHouseholdId);
@@ -350,6 +354,7 @@ describe('mutations', () => {
         res.body.data.updateClient.speaksEnglish.should.equal(0);
         res.body.data.updateClient.militaryStatusId.should.equal(2);
         res.body.data.updateClient.ethnicityId.should.equal(2);
+        res.body.data.updateClient.phoneNumber.should.equal('123');
 
         newHouseholdVersion += 1;
 
@@ -436,7 +441,8 @@ describe('mutations', () => {
             refugeeImmigrantStatus: 0,
             speaksEnglish: 0,
             militaryStatusId: 2,
-            ethnicityId: 2},
+            ethnicityId: 2,
+            phoneNumber: "123"},
             inPlace: true) {
               id
               householdId
@@ -449,6 +455,7 @@ describe('mutations', () => {
               speaksEnglish
               militaryStatusId
               ethnicityId
+              phoneNumber
             }
           }
        ` })

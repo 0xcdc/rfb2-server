@@ -78,8 +78,14 @@ async function main() {
 
   const credentialsObject = JSON.parse(stdout);
 
-  await execCmd('Creating a new foodbank database', 'sudo mysql < data-scripts/latest_schema.sql');
-  await execCmd('Populating fact tables', 'sudo mysql < data-scripts/fact-tables.sql');
+  const newDBSql = `
+    DROP DATABASE IF EXISTS foodbank;
+    CREATE DATABASE foodbank;
+`;
+
+  await execCmd('Creating a new foodbank database', `echo "${newDBSql}" | sudo mysql`);
+  await execCmd('Creating database structures', 'sudo mysql foodbank < data-scripts/latest_schema.sql');
+  await execCmd('Populating fact tables', 'sudo mysql foodbank < data-scripts/fact-tables.sql');
 
   const createUserSql = `
     DROP USER IF EXISTS '${credentialsObject.mysqlUsername}'@'%';

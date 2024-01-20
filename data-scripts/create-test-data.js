@@ -181,7 +181,8 @@ async function createHousehold(lastName) {
           refugeeImmigrantStatus: -1,
           speaksEnglish: -1,
           militaryStatusId: 0,
-          ethnicityId: 0
+          ethnicityId: 0,
+          phoneNumber: ""
         },
         inPlace: true
       ) {
@@ -196,6 +197,7 @@ async function createHousehold(lastName) {
           speaksEnglish
           militaryStatusId
           ethnicityId
+          phoneNumber
         }
     }`;
     console.log(`creating client ${name}`);

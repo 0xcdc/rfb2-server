@@ -1,10 +1,6 @@
-DROP DATABASE IF EXISTS `foodbank`;
-CREATE DATABASE `foodbank`;
-USE `foodbank`;
-
 -- MySQL dump 10.13  Distrib 8.0.35, for Linux (x86_64)
 --
--- Host: localhost    Database: foodbank
+-- Host: 34.82.78.176    Database: foodbank
 -- ------------------------------------------------------
 -- Server version	8.0.31-google
 
@@ -18,8 +14,6 @@ USE `foodbank`;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
-SET @@SESSION.SQL_LOG_BIN= 0;
 
 --
 -- Table structure for table `city`
@@ -59,10 +53,12 @@ CREATE TABLE `client` (
   `militaryStatusId` int NOT NULL,
   `ethnicityId` int NOT NULL,
   `householdId` int NOT NULL,
+  `phoneNumber` varchar(255) NOT NULL DEFAULT (_utf8mb4''),
   PRIMARY KEY (`id`,`version`),
   KEY `client_household_id` (`householdId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Temporary view structure for view `client_visit`
@@ -105,6 +101,26 @@ CREATE TABLE `ethnicity` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `ethnicity_translation`
+--
+
+DROP TABLE IF EXISTS `ethnicity_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ethnicity_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `ethnicity_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `ethnicity` (`id`),
+  CONSTRAINT `ethnicity_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 --
 -- Table structure for table `gender`
 --
@@ -119,6 +135,26 @@ CREATE TABLE `gender` (
   UNIQUE KEY `value` (`value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `gender_translation`
+--
+
+DROP TABLE IF EXISTS `gender_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `gender_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `gender_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `gender` (`id`),
+  CONSTRAINT `gender_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Table structure for table `household`
@@ -141,6 +177,7 @@ CREATE TABLE `household` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
 --
 -- Table structure for table `household_client_list`
 --
@@ -159,6 +196,7 @@ CREATE TABLE `household_client_list` (
   CONSTRAINT `household_client_list_ibfk_2` FOREIGN KEY (`clientId`, `clientVersion`) REFERENCES `client` (`id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Temporary view structure for view `household_visit`
@@ -192,6 +230,26 @@ CREATE TABLE `income_level` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `income_level_translation`
+--
+
+DROP TABLE IF EXISTS `income_level_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `income_level_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `income_level_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `income_level` (`id`),
+  CONSTRAINT `income_level_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 --
 -- Table structure for table `keys`
 --
@@ -205,6 +263,25 @@ CREATE TABLE `keys` (
   PRIMARY KEY (`tablename`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `language`
+--
+
+DROP TABLE IF EXISTS `language`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `language` (
+  `id` int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `code` char(2) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Table structure for table `militaryStatus`
@@ -221,6 +298,62 @@ CREATE TABLE `militaryStatus` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `militaryStatus_translation`
+--
+
+DROP TABLE IF EXISTS `militaryStatus_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `militaryStatus_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `militaryStatus_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `militaryStatus` (`id`),
+  CONSTRAINT `militaryStatus_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `prompt`
+--
+
+DROP TABLE IF EXISTS `prompt`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `prompt` (
+  `id` int NOT NULL,
+  `tag` varchar(20) NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `tag` (`tag`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `prompt_translation`
+--
+
+DROP TABLE IF EXISTS `prompt_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `prompt_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `prompt_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `prompt` (`id`),
+  CONSTRAINT `prompt_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 --
 -- Table structure for table `race`
 --
@@ -236,6 +369,40 @@ CREATE TABLE `race` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+--
+-- Table structure for table `race_translation`
+--
+
+DROP TABLE IF EXISTS `race_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `race_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `race_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `race` (`id`),
+  CONSTRAINT `race_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `translation_table`
+--
+
+DROP TABLE IF EXISTS `translation_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `translation_table` (
+  `tableName` varchar(255) NOT NULL,
+  PRIMARY KEY (`tableName`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
 --
 -- Table structure for table `upgrades`
 --
@@ -249,6 +416,15 @@ CREATE TABLE `upgrades` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `upgrades`
+--
+
+LOCK TABLES `upgrades` WRITE;
+/*!40000 ALTER TABLE `upgrades` DISABLE KEYS */;
+/*!40000 ALTER TABLE `upgrades` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `visit`
@@ -270,6 +446,7 @@ CREATE TABLE `visit` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
 --
 -- Table structure for table `yes_no`
 --
@@ -284,6 +461,26 @@ CREATE TABLE `yes_no` (
   UNIQUE KEY `value` (`value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
+-- Table structure for table `yes_no_translation`
+--
+
+DROP TABLE IF EXISTS `yes_no_translation`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `yes_no_translation` (
+  `id` int NOT NULL,
+  `languageId` int NOT NULL,
+  `value` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`id`,`languageId`),
+  KEY `languageId` (`languageId`),
+  CONSTRAINT `yes_no_translation_ibfk_1` FOREIGN KEY (`id`) REFERENCES `yes_no` (`id`),
+  CONSTRAINT `yes_no_translation_ibfk_2` FOREIGN KEY (`languageId`) REFERENCES `language` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 --
 -- Final view structure for view `client_visit`
@@ -320,7 +517,6 @@ CREATE TABLE `yes_no` (
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
 /*!50001 SET collation_connection      = @saved_col_connection */;
-SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -331,4 +527,4 @@ SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-12-29 20:33:02
+-- Dump completed on 2024-01-19 22:27:56
