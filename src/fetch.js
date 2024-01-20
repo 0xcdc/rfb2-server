@@ -64,7 +64,12 @@ export async function graphQL(query, key) {
   try {
     checkStatus(response);
     const json = await response.json();
-    return json.data[key];
+    if (json.data) {
+      return json.data[key];
+    } else {
+      console.error(json.errors);
+      throw Error(json.errors[0].message);
+    }
   } catch (error) {
     console.error(error);
 
