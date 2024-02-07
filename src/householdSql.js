@@ -1,6 +1,5 @@
-import { loadAllCities, loadCityById } from './citySql.js';
-import { loadAllClients, loadClientsForHouseholdId } from './clientSql.js';
 import database from './database.js';
+import { loadAllCities } from './citySql.js';
 
 export function incrementHouseholdVersion(conn, householdId) {
   return conn.execute(
@@ -32,89 +31,118 @@ export function incrementHouseholdVersion(conn, householdId) {
 }
 
 
-function selectById({ id, version }) {
-  version = version ? Promise.resolve(version) : database.getMaxVersion('household', id);
-  const sql = `
-  select h.*, coalesce(last_visit, '') as lastVisit
-    from household h
-    left join (
-      select householdId, max(date) as last_visit
-      from visit
-      group by householdId
-    ) as v
-      on v.householdId = h.id
-    where h.id = :id
-      and version = :version`;
-  return version
-    .then( version => database.all(sql, { id, version }))
-    .then( rows => rows?.[0]);
-}
+async function selectHouseholds({ id, date }) {
+  date = date ? date : '9999-12-31';
+  const idSql = !id ? '' : `
+  and id = :id`;
 
-function loadById({ id, version }) {
-  return selectById({ id, version })
-    .then( household => {
-      if ( household ) {
-        return loadCityById(household.cityId)
-          .then( city => household.city = city)
-          .then( () => loadClientsForHouseholdId(id, household.version))
-          .then( clients => {
-            household.clients = clients;
-            household.householdSize = clients.length;
-          })
-          .then( () => household);
-      } else {
-        return null;
-      }
-    });
-}
-
-export function loadAllHouseholds(ids) {
-  const households = database.all(
-    `
-    select h.*, coalesce(last_visit, '') as lastVisit
-    from household h
-    left join (
-      select householdId, max(date) as last_visit
-      from visit
-      group by householdId
-    ) as v
-      on v.householdId = h.id
-    where not exists (
-      select 1
-      from household h2
-      where h.id = h2.id
-        and h2.version > h.version)`
+  const householdPromise = database.all( `
+select h.*, coalesce(last_visit, '') as lastVisit
+from household h
+left join (
+  select householdId, max(date) as last_visit
+  from visit
+  group by householdId
+) as v
+  on v.householdId = h.id
+where end_date = :date
+  ${idSql}
+`, { id, date }
   );
-  const clients = loadAllClients();
-  const cities = loadAllCities();
 
-  return Promise.all([households, clients, cities])
-    .then( ([households, clients, cities]) => {
-      const citiesMap = new Map(cities.map(city => [city.id, city]));
-      const householdMap = new Map(
-        households.map(h => [h.id, { ...h, city: citiesMap.get(h.cityId) }])
-      );
+  const citiesPromise = loadAllCities();
+  const [households, cities] = await Promise.all([householdPromise, citiesPromise]);
+  const citiesMap = new Map(cities.map(city => [city.id, city]));
+  return households.map(h => {
+    const { data, ...householdFields } = h;
+    return {
+      ...householdFields,
+      householdSize: data.clients.length,
+      city: citiesMap.get(data.cityId),
+      ...data,
+    };
+  });
+}
 
-      clients.forEach(client => {
-        const household = householdMap.get(client.householdId);
-        if (!household.clients) household.clients = [];
-        household.clients.push(client);
-        household.householdSize = household.clients.length;
-      });
-      if (ids.length === 0) {
-        return Array.from(householdMap.values());
-      } else {
-        return Array.from(ids.map(id => householdMap.get(id)));
-      }
+export async function loadAllHouseholds(ids) {
+  const households = await selectHouseholds({});
+  if (ids.length == 0) return households;
+
+  const householdMap = new Map(
+    households.map( h => [h.id, h])
+  );
+
+  return Array.from(ids.map( id => householdMap.get(id)));
+}
+
+export async function loadHouseholdById(id, date) {
+  const households = await selectHouseholds({ id, date });
+  return households?.[0];
+}
+
+/*
+export function updateClient({ client, inPlace }) {
+  if(client.id === -1) {
+    throw new Error('client.id cannot be -1');
+  }
+
+  let dbOp = null;
+  if (isNewClient || !inPlace) {
+    dbOp = database.transaction( conn =>
+      (inPlace !== true ?
+        incrementHouseholdVersion(conn, client.householdId) :
+        conn.getMaxVersion('household', client.householdId))
+        .then( householdVersion =>
+          conn.upsert('client', client, { isVersioned: true, pullKey: true })
+            .then( () =>
+              (isNewClient) ?
+                conn.execute(
+                  `
+                  insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
+                    values( :householdId, :householdVersion, :id, :version)`,
+                  { ...client, householdVersion }
+                ) : conn.execute(
+                  `
+                  update household_client_list
+                    set clientVersion = :version
+                    where householdId = :householdId
+                      and householdVersion = :householdVersion
+                      and clientId = :id`,
+                  { ...client, householdVersion }
+                )
+            )
+        )
+    );
+  } else {
+    dbOp = database.transaction( conn => {
+      return conn.getMaxVersion('client', client.id)
+        .then( nextVersion => {
+          client.version = nextVersion;
+          const { id, version, ...values } = client;
+          return conn.update('client', { id, version }, values);
+        });
     });
+  }
+  return dbOp.then( () => loadClientById(client.id));
 }
+*/
 
-export function loadHouseholdById(id, version) {
-  return loadById({ id, version });
-}
+export function updateHousehold({ householdInput }) {
+  throw new Error('not implemented');
+/*  const {clients, ...household} = householdInput;
+  if(clients.length == 0) throw new Error('there must be at least one client');
+  if(clients.some( c => c.name == '')) throw new Error('every client must have a name');
 
-export function updateHousehold({ household, inPlace }) {
+  if((household.id == -1) || (clients.some(c => c.id == -1))) {
+    throw new Error('-1 is not a valid household / client id');
+  }
+
   return database.transaction(conn => {
+    // we are either going to update in place or insert a new version based on whether the
+    // household has any visits in the past or not.
+
+    conn.all(`select 1 from
+
     if (household.id === -1) {
       return conn.upsert('household', household, { isVersioned: true, pullKey: true });
     } else {
@@ -129,4 +157,5 @@ export function updateHousehold({ household, inPlace }) {
       });
     }
   }).then( () => loadById(household));
+  */
 }

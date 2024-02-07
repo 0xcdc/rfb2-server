@@ -1,20 +1,19 @@
-import { deleteClient, loadAllClients, loadClientById, updateClient } from './clientSql.js';
+import { deleteClient, loadAllClients, loadClientById } from './clientSql.js';
 import {
   deleteVisit, firstVisitsForYear, loadClientVisits, loadHouseholdVisits, recordVisit, visitsForHousehold,
   visitsForMonth
 } from './visitSql.js';
-import { loadAllCities, loadCityById } from './citySql.js';
 import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
 import { loadAllLanguages, loadAllTranslations, loadTranslationTables, updateTranslation } from './translationSql.js';
 import { credentials } from '../credentials.js';
 import database from './database.js';
 import { googleTranslate } from './googleTranslate.js';
+import { loadAllCities } from './citySql.js';
 import { lookupSet } from './lookupTableSql.js';
 
 export const resolvers = {
   // Query:
   cities: args => loadAllCities(),
-  city: args => loadCityById(args.id),
   client: args => loadClientById(args.id),
   clients: args => loadAllClients(),
   clientVisitsForYear: args => loadClientVisits(args.year),
@@ -25,7 +24,7 @@ export const resolvers = {
   gender: args => lookupSet('gender', args.id),
   genders: args => lookupSet('gender'),
   googleTranslate: args => googleTranslate(args),
-  household: args => loadHouseholdById(args.id, args.version),
+  household: args => loadHouseholdById(args.id, args.date),
   households: args => loadAllHouseholds(args.ids),
   householdVisitsForYear: args => loadHouseholdVisits(args.year),
   incomeLevel: args => lookupSet('income_level', args.id),
@@ -46,7 +45,6 @@ export const resolvers = {
   deleteVisit: args => deleteVisit(args.id),
   pullNextKey: args => database.pullNextKey(args.entity),
   recordVisit: args => recordVisit(args),
-  updateClient: args => updateClient(args),
   updateHousehold: args => updateHousehold(args),
   updateTranslation: args => updateTranslation(args),
 };

@@ -11,7 +11,6 @@ export const typeDefs = buildSchema(`
 
   type Client{
     id: Int!
-    householdId: Int!
     name: String!
     disabled: Int!
     raceId: Int!
@@ -22,8 +21,6 @@ export const typeDefs = buildSchema(`
     militaryStatusId: Int!
     ethnicityId: Int!
     householdSize: Int!
-    cardColor: String!
-    lastVisit: String
     phoneNumber: String!
     note: String!
   },
@@ -48,21 +45,24 @@ export const typeDefs = buildSchema(`
 
   type Credentials {
     googleMapsApiKey: String!
-  },
+  }
+
+  type Location {
+    lat: String!
+    lng: String!
+  }
 
   type Household {
     id: Int!
-    version: Int!
     address1: String!
     address2: String!
     cityId: Int!
     zip: String!
     incomeLevelId: Int!
-    householdSize: Int!
     note: String!
     clients: [Client]
     city: City!
-    latlng: String!
+    location: Location
     lastVisit: String
   }
 
@@ -98,18 +98,16 @@ export const typeDefs = buildSchema(`
   type Visit {
     id: Int!
     householdId: Int!
-    householdVersion: Int!
     date: String!
   }
 
   type Query {
-    city(id: Int!): City,
     cities: [City],
     client(id: Int!): Client,
     clientVisitsForYear(year: Int!): [ClientVisit],
     clients: [Client],
     credentials: Credentials,
-    household(id: Int!, version: Int): Household,
+    household(id: Int!, date: String): Household,
     households(ids: [Int!]!): [Household],
     householdVisitsForYear(year: Int!): [HouseholdVisit],
     ethnicities: [LookupTable],
@@ -157,6 +155,7 @@ export const typeDefs = buildSchema(`
     incomeLevelId: Int!
     latlng: String!
     note: String!
+    clients: [ClientInput]!
   }
 
   type Mutation {
@@ -164,7 +163,6 @@ export const typeDefs = buildSchema(`
     deleteVisit(id: Int!): Visit,
     pullNextKey(entity: String!): Int,
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
-    updateClient(client: ClientInput!, inPlace: Boolean): Client,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
     updateTranslation(set: String!, id: Int!, languageId: Int!, value: String!): Translation
   }

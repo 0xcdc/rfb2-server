@@ -38,34 +38,14 @@ class LoggingConnection {
   }
 
   getMaxVersion(tableName, id) {
-    return this.all(
-      `
-      select max(version) as version
-      from ${tableName}
-      where id = :id`,
-      { id }
-    ).then( rows =>
-      (rows.length > 0) ?
-        rows[0].version : 1
-    );
-  }
-
-  insert(tablename, values, upsert) {
-    const keys = Object.keys(values);
-    let sql = `
-insert into ${tablename} (${keys.join(', ')})
-  values(${keys.map(k => `:${k}`).join(', ')})`;
-
-    if (upsert) {
-      sql += `
-ON DUPLICATE KEY UPDATE
-${keys.map( k=> `${k} = :${k}`).join(', ')}`;
-    }
-
-    return this.execute(
-      sql,
-      values
-    );
+    return this.all(`
+SELECT  COALESCE(MAX(version), 1) AS version
+FROM  ${tableName}
+WHERE  id = :id
+FOR UPDATE
+`,
+    { id }
+    ).then( rows => rows[0].version);
   }
 
   delete(tablename, { id, version }) {
@@ -121,35 +101,20 @@ UPDATE ${tablename}
     return this.execute(sql, { ...keys, ...values });
   }
 
-
-  upsert(tableName, obj, options) {
+  upsert(tableName, values) {
     console.log('upsert');
-    const isVersioned = options && options.isVersioned && true;
-    const pullKey = options && options.pullKey && true;
 
-    // first, if it's a new row (id == -1) then we need to pull a new key and do an insert
-    let dbOps = null;
-    if (pullKey && obj.id === -1) {
-      dbOps = this.pullNextKey(tableName)
-        .then( nextKey => {
-          obj.id = nextKey;
-          if (isVersioned) {
-            obj.version = 1;
-          }
-          return this.insert(tableName, obj);
-        });
-    } else if (isVersioned) {
-      // versioned rows are inserts, but we will need to calculate the next version number for the id
-      dbOps = this.getMaxVersion(tableName, obj.id)
-        .then( maxVersion => {
-          obj.version = maxVersion + 1;
-          return this.insert(tableName, obj);
-        });
-    } else {
-      // vanilla update
-      dbOps = this.insert(tableName, obj, true);
-    }
-    return dbOps.then( () => obj.id);
+    const keys = Object.keys(values);
+    const sql = `
+INSERT INTO ${tableName} (${keys.join(', ')})
+  VALUES(${keys.map(k => `:${k}`).join(', ')})
+ON DUPLICATE KEY UPDATE
+${keys.map( k=> `  ${k} = :${k}`).join(',\n      ')}`;
+
+    return this.execute(
+      sql,
+      values
+    );
   }
 }
 
@@ -200,8 +165,8 @@ class Database {
     return this.withConnection( conn => conn.update(tableName, keys, values));
   }
 
-  upsert(tableName, obj, options) {
-    return this.withConnection( conn => conn.upsert(tableName, obj, options));
+  upsert(tableName, values) {
+    return this.withConnection( conn => conn.upsert(tableName, values));
   }
 
   withConnection(fn) {

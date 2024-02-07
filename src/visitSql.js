@@ -1,28 +1,26 @@
 import { DateTime } from 'luxon';
 import database from './database.js';
 
-function selectVisitsForHousehold(householdId) {
-  return database.all(
-    `
-    SELECT *
-    FROM visit
-    WHERE householdId = :householdId`,
-    { householdId }
-  );
-}
+const selectSql = `SELECT id, householdId, cast(date as char) as date`;
 
-function selectVisitById(id) {
-  return database.all(
-    `
-    SELECT *
-    FROM visit
-    WHERE id = :id`,
-    { id }
+function selectVisits(filters) {
+  const filterSql = !filters ? '' : `
+WHERE ` +
+    Object
+      .keys(filters)
+      .map( key => `${key} = :${key}`).
+      join('\n  AND');
+
+  return database.all(`
+${selectSql}
+FROM visit
+${filterSql} `,
+  filters
   );
 }
 
 export function visitsForHousehold(householdId) {
-  return selectVisitsForHousehold(householdId);
+  return selectVisits({ householdId });
 }
 
 export function firstVisitsForYear(year) {
@@ -30,10 +28,10 @@ export function firstVisitsForYear(year) {
   const lastDay = DateTime.fromObject({ year: year + 1, month: 1, day: 1 }).toISODate();
 
   const sql = `
-     SELECT *
-     FROM visit v1
-     WHERE v1.date >= :firstDay
-       AND v1.date < :lastDay
+     ${selectSql}
+     FROM visit v
+     WHERE v.date >= :firstDay
+       AND v.date < :lastDay
        AND NOT EXISTS (
          SELECT *
          FROM visit v2
@@ -54,7 +52,7 @@ export function visitsForMonth(year, month) {
   [firstDay, lastDay] = [firstDay, lastDay].map( e => e.toISODate());
 
   return database.all(
-    `SELECT *
+    `${selectSql}
      FROM visit
      WHERE date >= :firstDay and date < :lastDay`,
     { firstDay, lastDay }
@@ -76,18 +74,17 @@ export async function recordVisit(args) {
     date = date.toISODate();
 
     const id = await conn.pullNextKey('visit');
-    const householdVersion = await conn.getMaxVersion('household', householdId);
     await conn.execute(`
-      INSERT INTO visit (id, date, householdId, householdVersion)
-        SELECT :id, :date, :householdId, :householdVersion
+      INSERT INTO visit (id, date, householdId)
+        SELECT :id, :date, :householdId
         WHERE NOT EXISTS (
           SELECT *
           FROM visit
           WHERE date = :date
             AND householdId = :householdId
-       )`, { date, id, householdId, householdVersion });
+       )`, { date, id, householdId });
     const rows = await conn.all(`
-      SELECT *
+      ${selectSql}
         FROM visit
         WHERE date = :date
           AND householdId = :householdId`, { date, householdId });
@@ -96,7 +93,7 @@ export async function recordVisit(args) {
 }
 
 export function deleteVisit(id) {
-  return selectVisitById(id)
+  return selectVisits({ id })
     .then( rows => {
       if (rows.length === 0) {
         throw new Error(`could not find a visit with id: ${id}`);
@@ -111,7 +108,7 @@ export function loadClientVisits(year) {
   const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
 
   return database.all(
-    `SELECT *
+    `${selectSql}
      FROM client_visit
      WHERE date >= :firstDay and date <= :lastDay
      ORDER BY date`,
@@ -124,7 +121,7 @@ export function loadHouseholdVisits(year) {
   const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
 
   return database.all(
-    `SELECT *
+    `${selectSql}
      FROM household_visit
      WHERE date >= :firstDay and date <= :lastDay
      ORDER BY date`,
