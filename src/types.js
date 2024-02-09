@@ -28,19 +28,15 @@ export const typeDefs = buildSchema(`
   type ClientVisit {
     age: Int
     birthYear: String!
-    cityId: Int!
     clientId: Int!
     date: String!,
     disabled: Int!
     ethnicityId: Int!
     genderId: Int!
-    householdId: Int!
     militaryStatusId: Int!
     raceId: Int!
     refugeeImmigrantStatus: Int!
     speaksEnglish: Int!
-    visitId: Int!
-    zip: String!,
   }
 
   type Credentials {
@@ -74,6 +70,7 @@ export const typeDefs = buildSchema(`
     incomeLevelId: Int!
     visitId: Int!
     zip: String!
+    clients: [ClientVisit]
   }
 
   type Language {
@@ -103,37 +100,25 @@ export const typeDefs = buildSchema(`
 
   type Query {
     cities: [City],
-    client(id: Int!): Client,
-    clientVisitsForYear(year: Int!): [ClientVisit],
-    clients: [Client],
     credentials: Credentials,
+    ethnicities: [LookupTable],
+    genders: [LookupTable],
+    googleTranslate(value: String!, code: String!): String,
     household(id: Int!, date: String): Household,
     households(ids: [Int!]!): [Household],
     householdVisitsForYear(year: Int!): [HouseholdVisit],
-    ethnicities: [LookupTable],
-    ethnicity(id: Int!): LookupTable,
-    firstVisitsForYear(year: Int!): [Visit],
-    gender(id: Int!): LookupTable,
-    genders: [LookupTable],
-    googleTranslate(value: String!, code: String!): String,
-    incomeLevel(id: Int!): LookupTable,
     incomeLevels: [LookupTable],
     languages: [Language],
-    militaryStatus(id: Int!): LookupTable,
     militaryStatuses: [LookupTable],
-    race(id: Int!): LookupTable,
     races: [LookupTable],
     translationSets: [String],
     translations: [Translation],
     visitsForHousehold(householdId: Int!): [Visit],
-    visitsForMonth(year: Int!, month: Int!): [Visit],
-    yesNo(id: Int!): LookupTable,
     yesNos: [LookupTable],
    }
 
   input ClientInput {
       id: Int!
-      householdId: Int!
       name: String!
       disabled: Int!
       raceId: Int!

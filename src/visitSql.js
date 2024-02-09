@@ -23,42 +23,6 @@ export function visitsForHousehold(householdId) {
   return selectVisits({ householdId });
 }
 
-export function firstVisitsForYear(year) {
-  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
-  const lastDay = DateTime.fromObject({ year: year + 1, month: 1, day: 1 }).toISODate();
-
-  const sql = `
-     ${selectSql}
-     FROM visit v
-     WHERE v.date >= :firstDay
-       AND v.date < :lastDay
-       AND NOT EXISTS (
-         SELECT *
-         FROM visit v2
-         WHERE v2.date >= :firstDay
-           AND v2.date < :lastDay
-           AND v2.date < v1.date
-           AND v2.householdId = v1.householdId
-       )`;
-
-  return database.all(sql, { firstDay, lastDay });
-}
-
-export function visitsForMonth(year, month) {
-  const day = 1;
-  let firstDay = DateTime.fromObject({ year, month, day });
-  let lastDay = firstDay.plus({ months: 1 });
-
-  [firstDay, lastDay] = [firstDay, lastDay].map( e => e.toISODate());
-
-  return database.all(
-    `${selectSql}
-     FROM visit
-     WHERE date >= :firstDay and date < :lastDay`,
-    { firstDay, lastDay }
-  );
-}
-
 export async function recordVisit(args) {
   const { conn } = args;
   if (!conn) {
@@ -103,28 +67,46 @@ export function deleteVisit(id) {
     });
 }
 
-export function loadClientVisits(year) {
+export async function loadHouseholdVisits(year) {
   const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
   const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
+  const sql = `
+select *
+  from household_visit
+  where date >= :firstDay
+    and date <= :lastDay
+  order by date
+`;
 
-  return database.all(
-    `${selectSql}
-     FROM client_visit
-     WHERE date >= :firstDay and date <= :lastDay
-     ORDER BY date`,
-    { firstDay, lastDay }
-  );
-}
+  const householdVisits = await database.all(sql, { firstDay, lastDay });
 
-export function loadHouseholdVisits(year) {
-  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
-  const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
+  // we need to augment homeless and age
+  return householdVisits
+    .map( hv => {
+      const { householdId, data, visitId, date } = hv;
+      const { clients, ...householdData } = data;
 
-  return database.all(
-    `${selectSql}
-     FROM household_visit
-     WHERE date >= :firstDay and date <= :lastDay
-     ORDER BY date`,
-    { firstDay, lastDay }
-  );
+      const homeless = householdData.address1 == '' ? 1 : 0;
+
+      clients.forEach( c => {
+        const birthYear = parseInt(c.birthYear, 10);
+        const visitYear = DateTime.fromISO(date).year;
+
+        const age =
+          isNaN(birthYear) ||
+          birthYear < 1900 ||
+          birthYear > visitYear ? null : visitYear - birthYear;
+
+        c.age = age;
+      });
+
+      return {
+        householdId,
+        visitId,
+        date,
+        clients,
+        ...householdData,
+        homeless,
+      };
+    });
 }

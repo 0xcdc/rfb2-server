@@ -1,9 +1,7 @@
 CREATE OR REPLACE view household_visit AS
-select h.id as householdId, incomeLevelId, v.id as visitId, v.date, h.cityId, h.zip,
-  case when address1 = '' then 1
-  else 0
-  end as homeless
+select h.id as householdId, h.data, v.id as visitId, cast(v.date as char) as date
   from visit v
   join household h
     on  h.id = v.householdId
-    and h.version = v.householdVersion;
+    and v.date >= h.start_date
+    and v.date < h.end_date;
