@@ -131,6 +131,11 @@ export const typeDefs = buildSchema(`
       phoneNumber: String!
   }
 
+  input LocationInput {
+    lat: Float!
+    lng: Float!
+  }
+
   input HouseholdInput {
     id: Int!
     address1: String!
@@ -138,7 +143,7 @@ export const typeDefs = buildSchema(`
     cityId: Int!
     zip: String!
     incomeLevelId: Int!
-    latlng: String!
+    location: LocationInput
     note: String!
     clients: [ClientInput]!
   }
