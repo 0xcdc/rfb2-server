@@ -6,7 +6,7 @@ export const typeDefs = buildSchema(`
     name: String!
     break_out: Int!
     in_king_county: Int!
-    latlng: String!
+    location: Location!
   }
 
   type Client{
@@ -44,8 +44,8 @@ export const typeDefs = buildSchema(`
   }
 
   type Location {
-    lat: String!
-    lng: String!
+    lat: Float!
+    lng: Float!
   }
 
   type Household {
