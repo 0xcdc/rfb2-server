@@ -81,8 +81,8 @@ FROM translation_table`)
     .then( rows => rows.map( row => row.tableName ));
 }
 
-export async function updateTranslation(args) {
-  const { id, set, languageId, value } = args;
+export async function updateTranslation({ translation }) {
+  const { id, set, languageId, value } = translation;
 
   // security check
   // - ensure that the specified 'set' (aka tablename) is one of the tables allowed

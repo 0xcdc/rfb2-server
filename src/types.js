@@ -148,12 +148,19 @@ export const typeDefs = buildSchema(`
     clients: [ClientInput]!
   }
 
+  input UpdateTranslationInput {
+    set: String!
+    id: Int!
+    languageId: Int!
+    value: String!
+  }
+
   type Mutation {
     deleteClient(id: Int!): Client,
     deleteVisit(id: Int!): Visit,
     pullNextKey(entity: String!): Int,
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
     updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
-    updateTranslation(set: String!, id: Int!, languageId: Int!, value: String!): Translation
+    updateTranslation(translation: UpdateTranslationInput): Translation
   }
 `);
