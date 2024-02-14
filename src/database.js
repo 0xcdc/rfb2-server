@@ -158,7 +158,7 @@ class Database {
   }
 
   pullNextKey(tableName) {
-    return this.withConnection( conn => conn.pullNextKey(tableName) );
+    return this.transaction( conn => conn.pullNextKey(tableName));
   }
 
   update(tableName, keys, values) {
