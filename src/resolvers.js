@@ -1,5 +1,8 @@
+import {
+  createNewClient, createNewHousehold,
+  loadAllHouseholds, loadHouseholdById,
+  updateHousehold } from './householdSql.js';
 import { deleteVisit, loadHouseholdVisits, recordVisit, visitsForHousehold } from './visitSql.js';
-import { loadAllHouseholds, loadHouseholdById, updateHousehold } from './householdSql.js';
 import { loadAllLanguages, loadAllTranslations, loadTranslationTables, updateTranslation } from './translationSql.js';
 import { credentials } from '../credentials.js';
 import database from './database.js';
@@ -26,6 +29,8 @@ export const resolvers = {
   visitsForHousehold: args => visitsForHousehold(args.householdId),
   yesNos: args => lookupSet('yes_no'),
   // Mutations:
+  createNewHousehold: args => createNewHousehold(),
+  createNewClient: args => createNewClient(),
   deleteVisit: args => deleteVisit(args.id),
   pullNextKey: args => database.pullNextKey(args.entity),
   recordVisit: args => recordVisit(args),
