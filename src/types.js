@@ -20,7 +20,6 @@ export const typeDefs = buildSchema(`
     speaksEnglish: Int!
     militaryStatusId: Int!
     ethnicityId: Int!
-    householdSize: Int!
     phoneNumber: String!
     note: String!
   },
@@ -156,11 +155,12 @@ export const typeDefs = buildSchema(`
   }
 
   type Mutation {
-    deleteClient(id: Int!): Client,
+    createNewHousehold: Household,
+    createNewClient: Client,
     deleteVisit(id: Int!): Visit,
     pullNextKey(entity: String!): Int,
     recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
-    updateHousehold(household: HouseholdInput!, inPlace: Boolean): Household
+    updateHousehold(household: HouseholdInput!): Household
     updateTranslation(translation: UpdateTranslationInput): Translation
   }
 `);
