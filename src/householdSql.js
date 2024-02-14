@@ -1,5 +1,38 @@
+import { DateTime } from 'luxon';
 import database from './database.js';
 import { loadAllCities } from './citySql.js';
+
+export async function createNewHousehold() {
+  const id = await database.pullNextKey('household');
+  return {
+    id,
+    address1: '',
+    address2: '',
+    cityId: 0,
+    zip: '',
+    incomeLevelId: 0,
+    note: '',
+    clients: [],
+    location: null,
+  };
+}
+
+export async function createNewClient() {
+  const id = await database.pullNextKey('client');
+  return {
+    id,
+    name: '',
+    disabled: -1,
+    raceId: 0,
+    birthYear: '',
+    genderId: 0,
+    refugeeImmigrantStatus: -1,
+    speaksEnglish: -1,
+    militaryStatusId: 0,
+    ethnicityId: 0,
+    phoneNumber: '',
+  };
+}
 
 async function selectHouseholds({ id, date }) {
   date = date ? date : '9999-12-31';
@@ -50,82 +83,36 @@ export async function loadHouseholdById(id, date) {
   return households?.[0];
 }
 
-/*
-export function updateClient({ client, inPlace }) {
-  if(client.id === -1) {
-    throw new Error('client.id cannot be -1');
-  }
+export function updateHousehold({ household }) {
+  const { id, ...data } = household;
+  if (data.clients.length == 0) throw new Error('there must be at least one client');
+  if (data.clients.some( c => c.name == '')) throw new Error('every client must have a name');
 
-  let dbOp = null;
-  if (isNewClient || !inPlace) {
-    dbOp = database.transaction( conn =>
-      (inPlace !== true ?
-        incrementHouseholdVersion(conn, client.householdId) :
-        conn.getMaxVersion('household', client.householdId))
-        .then( householdVersion =>
-          conn.upsert('client', client, { isVersioned: true, pullKey: true })
-            .then( () =>
-              (isNewClient) ?
-                conn.execute(
-                  `
-                  insert into household_client_list (householdId, householdVersion, clientId, clientVersion)
-                    values( :householdId, :householdVersion, :id, :version)`,
-                  { ...client, householdVersion }
-                ) : conn.execute(
-                  `
-                  update household_client_list
-                    set clientVersion = :version
-                    where householdId = :householdId
-                      and householdVersion = :householdVersion
-                      and clientId = :id`,
-                  { ...client, householdVersion }
-                )
-            )
-        )
-    );
-  } else {
-    dbOp = database.transaction( conn => {
-      return conn.getMaxVersion('client', client.id)
-        .then( nextVersion => {
-          client.version = nextVersion;
-          const { id, version, ...values } = client;
-          return conn.update('client', { id, version }, values);
-        });
-    });
-  }
-  return dbOp.then( () => loadClientById(client.id));
-}
-*/
-
-export function updateHousehold({ householdInput }) {
-  throw new Error('not implemented');
-/*  const {clients, ...household} = householdInput;
-  if(clients.length == 0) throw new Error('there must be at least one client');
-  if(clients.some( c => c.name == '')) throw new Error('every client must have a name');
-
-  if((household.id == -1) || (clients.some(c => c.id == -1))) {
+  if ((id == -1) || (data.clients.some(c => c.id == -1))) {
     throw new Error('-1 is not a valid household / client id');
   }
 
-  return database.transaction(conn => {
-    // we are either going to update in place or insert a new version based on whether the
-    // household has any visits in the past or not.
+  return database.transaction(async conn => {
+    // we handle versioning by start_date / end_date
+    // we'll upsert the new data as start_date = today and end_date = 12/31/9999
+    // but first, if there is an existing row with end_date=12/31/9999
+    // we'll need to set it's end_date = today
+    // UNLESS that row's start date is today
+    // (i.e. we've already updated the client today so we can update "inplace")
 
-    conn.all(`select 1 from
+    const today = DateTime.now().toISODate();
+    const sentinal = '9999-12-31';
 
-    if (household.id === -1) {
-      return conn.upsert('household', household, { isVersioned: true, pullKey: true });
-    } else {
-      const dbOp = inPlace ?
-        conn.getMaxVersion('household', household.id) :
-        incrementHouseholdVersion(conn, household.id);
+    const closeExistingRecordSql = `
+update household
+  set end_date = :today
+  where id = :id
+    and start_date <> :today
+    and end_date = :sentinal`;
 
-      return dbOp.then( nextVersion => {
-        household.version = nextVersion;
-        const { id, version, ...values } = household;
-        return conn.update('household', { id, version }, values);
-      });
-    }
-  }).then( () => loadById(household));
-  */
+    await conn.execute(closeExistingRecordSql, { id, today, sentinal });
+
+    await conn.upsert('household', { id, start_date: today, end_date: sentinal, data });
+    return loadHouseholdById(id);
+  });
 }
