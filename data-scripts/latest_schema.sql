@@ -6,6 +6,19 @@
 
 
 --
+-- Table structure for table `language`
+--
+
+CREATE TABLE `language` (
+  id int NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `code` char(2) NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY `name` (`name`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+--
 -- Table structure for table `city`
 --
 
@@ -117,19 +130,6 @@ CREATE TABLE `keys` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Table structure for table `language`
---
-
-CREATE TABLE `language` (
-  id int NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `code` char(2) NOT NULL,
-  PRIMARY KEY (id),
-  UNIQUE KEY `name` (`name`),
-  UNIQUE KEY `code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
 -- Table structure for table `militaryStatus`
 --
 
@@ -213,16 +213,6 @@ CREATE TABLE translation_table (
   tableName varchar(255) NOT NULL,
   PRIMARY KEY (tableName)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
---
--- Table structure for table `upgrades`
---
-
-CREATE TABLE upgrades (
-  id int NOT NULL,
-  migration text NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `visit`
