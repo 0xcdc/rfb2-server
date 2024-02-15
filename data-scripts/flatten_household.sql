@@ -1,13 +1,6 @@
-/*
-alter table household
-  drop column start_date;
-
-alter table household
-  drop column end_date;
-*/
-alter table visit change date date date not null;
-
 drop table if exists new_household;
+
+alter table visit change date date date not null;
 
 CREATE TABLE `new_household` (
   `id` int NOT NULL,
@@ -15,7 +8,9 @@ CREATE TABLE `new_household` (
   `end_date` date NOT NULL,
   `data` json NOT NULL,
   `version` int not null,
-  PRIMARY KEY (`id`,`start_date`)
+  PRIMARY KEY (`id`,`start_date`),
+  UNIQUE(``start_date`, `id`),
+  UNIQUE(`end_date`, `id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 insert into new_household (id, start_date, end_date, version, data)
@@ -26,8 +21,8 @@ insert into new_household (id, start_date, end_date, version, data)
     'zip', zip,
     'note', note,
     'incomeLevelId', incomeLevelId,
-    'location', 
-      if(latlng <> '', 
+    'location',
+      if(latlng <> '',
          JSON_OBJECT('lat', JSON_EXTRACT(latlng, '$.lat'), 'lng', JSON_EXTRACT(latlng, '$.lng')),
          null)
   )
@@ -76,6 +71,7 @@ alter table visit
   drop constraint visit_ibfk_1;
 
 drop table household_client_list;
+drop view if exists client_visit;
 drop table if exists client;
 drop table household;
 
