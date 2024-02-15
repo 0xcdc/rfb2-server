@@ -47,9 +47,9 @@ export async function geocode(address) {
   }
 }
 
-export async function graphQL(query, key) {
+export async function graphQL(query, variables) {
   const url = `http://localhost:4000/graphql`;
-  const body = JSON.stringify({ query });
+  const body = JSON.stringify({ query, variables });
 
   const response = await fetch(url, {
     method: 'POST',
@@ -65,7 +65,7 @@ export async function graphQL(query, key) {
     checkStatus(response);
     const json = await response.json();
     if (json.data) {
-      return json.data[key];
+      return json;
     } else {
       console.error(json.errors);
       throw Error(json.errors[0].message);

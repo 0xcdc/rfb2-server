@@ -134,29 +134,41 @@ async function createHousehold(lastName) {
   const cityId = cityIds[randomCityIdIndex];
   const randomZipIndex = getRandomInt(0, zips.length);
   const zip = zips[randomZipIndex];
-  const createHouseholdGraphQL = `
-  mutation{
-    updateHousehold(
-      household: {
-        id: -1,
-        address1: "${address1}",
-        address2: "${address2}",
-        cityId: ${cityId},
-        zip: "${zip}",
-        incomeLevelId: 0,
-        latlng: "",
-        note: "" },
-      inPlace: false
-    ) {
-        id address1 address2 cityId zip incomeLevelId note
-      }
-  }`;
 
-  console.log(`creating ${lastName} household`);
+  const newHousehold = (await graphQL(`
+mutation { 
+  household:createNewHousehold {
+    id
+    address1
+    address2
+    cityId
+    zip
+    incomeLevelId
+    location {
+     lat
+     lng
+    }
+    note
+    clients {
+     id
+     name
+     genderId
+     disabled
+     refugeeImmigrantStatus
+     ethnicityId
+     raceId
+     speaksEnglish
+     militaryStatusId
+     birthYear
+     phoneNumber
+    }
+  }
+}`)).data.household;
 
-  const household = await graphQL(createHouseholdGraphQL, 'updateHousehold');
-
-  const householdId = household.id;
+  newHousehold.address1 = address1;
+  newHousehold.address2 = address2;
+  newHousehold.cityId = cityId;
+  newHousehold.zip = zip;
 
   let clientCount = getRandomInt(1, 8);
 
@@ -167,46 +179,40 @@ async function createHousehold(lastName) {
 
     const name = `${firstName} ${lastName}`;
 
-    const createClientGraphQL = `
-    mutation{
-      updateClient(
-        client: {
-          id: -1,
-          householdId: ${householdId},
-          name: "${name}",
-          disabled: -1,
-          raceId: 0,
-          birthYear: "",
-          genderId: 0,
-          refugeeImmigrantStatus: -1,
-          speaksEnglish: -1,
-          militaryStatusId: 0,
-          ethnicityId: 0,
-          phoneNumber: ""
-        },
-        inPlace: true
-      ) {
-          id
-          householdId
-          name
-          disabled
-          raceId
-          birthYear
-          genderId
-          refugeeImmigrantStatus
-          speaksEnglish
-          militaryStatusId
-          ethnicityId
-          phoneNumber
-        }
-    }`;
-    console.log(`creating client ${name}`);
-    await graphQL(createClientGraphQL, 'updateClient');
-    clientCount -= 1;
+    const newClient = (await graphQL(`
+mutation {
+  client:createNewClient {
+    id
+    name
+    disabled
+    birthYear
+    genderId
+    refugeeImmigrantStatus
+    speaksEnglish
+    militaryStatusId
+    ethnicityId
+    phoneNumber
+    raceId
   }
+}`)).data.client;
+
+    newClient.name = name;
+    newHousehold.clients.push(newClient);
+    clientCount--;
+  }
+
+  console.log(`creating ${lastName} household`);
+
+  const updateHouseholdQuery = `
+mutation saveHouseholdChanges($household: HouseholdInput!){
+  household:updateHousehold(household: $household) { id }
+}`;
+
+  await graphQL(updateHouseholdQuery, { household: newHousehold });
 
   let visitCount = getRandomInt(1, 8);
   let date = DateTime.now().setZone('America/Los_Angeles');
+  const householdId = newHousehold.id;
   while (visitCount > 0) {
     const weeksBack = getRandomInt(0, 2);
     date = date.minus({ weeks: weeksBack });
@@ -221,7 +227,7 @@ async function createHousehold(lastName) {
         householdId: ${householdId}, year: ${selectedYear}, month: ${month}, day: ${day}){date}}`;
 
     console.log('recording visit on ' + date.toISODate());
-    await graphQL(recordVisitGraphQL, 'recordVisit');
+    await graphQL(recordVisitGraphQL);
     visitCount -= 1;
   }
 }

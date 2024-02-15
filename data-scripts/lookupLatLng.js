@@ -3,7 +3,7 @@ import { geocode, graphQL } from '../src/fetch.js';
 async function getHouseholds() {
   const query = `{households(ids: []) {id  address1 address2 city{name} zip}}`;
 
-  const households = await graphQL(query, 'households');
+  const households = (await graphQL(query).households);
   const addresses = households.map( h => ({
     id: h.id,
     address: h.address1 + ' ' + h.address2 + ' ' + h.city.name + '  ' + h.zip,

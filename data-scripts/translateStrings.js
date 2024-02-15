@@ -6,8 +6,8 @@ const { Translate } = pkg.v2;
 const translate = new Translate();
 
 async function translateText() {
-  const languages = await graphQL('{ languages { id name code}}', 'languages');
-  const translations = await graphQL('{translations {id set languageId value}}', 'translations');
+  const languages = (await graphQL('{ languages { id name code}}')).data.languages;
+  const translations = (await graphQL('{translations {id set languageId value}}').data.translations);
   const englishTranslations = translations
     .filter(t => t.languageId == 0);
 
