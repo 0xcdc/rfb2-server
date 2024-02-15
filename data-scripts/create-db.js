@@ -86,6 +86,7 @@ async function main() {
   await execCmd('Creating a new foodbank database', `echo "${newDBSql}" | sudo mysql`);
   await execCmd('Creating database structures', 'sudo mysql foodbank < data-scripts/latest_schema.sql');
   await execCmd('Populating fact tables', 'sudo mysql foodbank < data-scripts/fact-tables.sql');
+  await execCmd('Creating views', 'sudo mysql foodbank < data-scripts/household_visit.sql');
 
   const createUserSql = `
     DROP USER IF EXISTS '${credentialsObject.mysqlUsername}'@'%';
