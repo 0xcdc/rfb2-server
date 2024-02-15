@@ -8,9 +8,7 @@ CREATE TABLE `new_household` (
   `end_date` date NOT NULL,
   `data` json NOT NULL,
   `version` int not null,
-  PRIMARY KEY (`id`,`start_date`),
-  UNIQUE(``start_date`, `id`),
-  UNIQUE(`end_date`, `id`)
+  PRIMARY KEY (`id`,`start_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 insert into new_household (id, start_date, end_date, version, data)
@@ -63,6 +61,9 @@ update new_household nh,
   set end_date = least(nh.end_date, first_visit.date)
   where first_visit.householdId = nh.id
     and first_visit.date > nh.start_date;
+
+alter table new_household
+  add UNIQUE KEY(`id`, `end_date`);
 
 alter table new_household
   drop column version;
