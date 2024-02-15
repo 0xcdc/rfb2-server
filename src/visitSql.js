@@ -95,7 +95,9 @@ select *
         const age =
           isNaN(birthYear) ||
           birthYear < 1900 ||
-          birthYear > visitYear ? null : visitYear - birthYear;
+          birthYear > visitYear ?
+            null :
+            visitYear - birthYear;
 
         c.age = age;
       });
