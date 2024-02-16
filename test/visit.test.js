@@ -6,40 +6,13 @@ const should = new Should();
 const url = `http://localhost:4000`;
 const request = supertest(url);
 
-const currentYear = new Date().getFullYear();
-const currentMonth = new Date().getMonth() + 1;
-
 describe('visit', () => {
-  it('first visits for year', done => {
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `{
-        firstVisitsForYear(year: ${currentYear}) {
-          id householdId householdVersion date
-        }
-      }` })
-      .expect(200)
-      .end((err, res) => {
-        // res will contain array of all clients
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.firstVisitsForYear);
-        // assume there are clients in the database
-        res.body.data.firstVisitsForYear.should.have.lengthOf.above(0);
-        res.body.data.firstVisitsForYear[0].should.have.property('householdId');
-        res.body.data.firstVisitsForYear[0].should.have.property('householdVersion');
-        res.body.data.firstVisitsForYear[0].should.have.property('date');
-        res.body.data.firstVisitsForYear[0].should.have.property('id');
-        done();
-      });
-  });
-
   it('visits for household', done => {
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{
       visitsForHousehold(householdId: 2) {
-        id householdId householdVersion date
+        id householdId date
       }
     }` })
       .expect(200)
@@ -51,34 +24,63 @@ describe('visit', () => {
         // assume there are clients in the database
         res.body.data.visitsForHousehold.should.have.lengthOf.above(0);
         res.body.data.visitsForHousehold[0].should.have.property('householdId');
-        res.body.data.visitsForHousehold[0].should.have.property('householdVersion');
         res.body.data.visitsForHousehold[0].should.have.property('date');
         res.body.data.visitsForHousehold[0].should.have.property('id');
         done();
       });
   });
 
-  it('visits for month', done => {
+
+  it('householdVisitsForYear', done => {
+    const year = new Date().getFullYear();
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{
-      visitsForMonth(year: ${currentYear}, month: ${currentMonth}) {
-        id householdId householdVersion date
+      householdVisitsForYear(year:${year}) {
+        cityId
+        date
+        homeless
+        householdId
+        incomeLevelId
+        visitId
+        zip
+        clients {
+          age
+          birthYear
+          clientId
+          disabled
+          ethnicityId
+          genderId
+          militaryStatusId
+          raceId
+          refugeeImmigrantStatus
+          speaksEnglish
+        }
       }
     }` })
       .expect(200)
       .end((err, res) => {
       // res will contain array of all clients
         if (err) return done(err);
+        if (res.body.errors) done(res.body.errors[0].message);
         should.exist(res.body.data);
-        should.exist(res.body.data.visitsForMonth);
+        should.exist(res.body.data.householdVisitsForYear);
+        const { householdVisitsForYear } = res.body.data;
         // assume there are clients in the database
-        res.body.data.visitsForMonth.should.have.lengthOf.above(0);
-        res.body.data.visitsForMonth[0].should.have.property('householdId');
-        res.body.data.visitsForMonth[0].should.have.property('householdVersion');
-        res.body.data.visitsForMonth[0].should.have.property('date');
-        res.body.data.visitsForMonth[0].should.have.property('id');
+        householdVisitsForYear.should.have.lengthOf.above(0);
+        const [firstVisit] = householdVisitsForYear;
+        firstVisit.should.have.property('householdId');
+        firstVisit.should.have.property('date');
+        firstVisit.should.have.property('visitId');
+        firstVisit.should.have.property('homeless');
+        firstVisit.should.have.property('clients');
+        const { clients } = firstVisit;
+        clients.should.have.length.greaterThan(0);
+        const [firstClient] = clients;
+        firstClient.should.have.property('age');
+
         done();
       });
   });
+
 });
