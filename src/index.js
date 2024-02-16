@@ -9,12 +9,56 @@ import { typeDefs } from './types.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
 const app = express();
-
 app.use('/graphql', express.json());
+
+function logResponseBody(req, res, next) {
+  const oldWrite = res.write;
+  const oldEnd = res.end;
+
+  const chunks = [];
+
+  res.write = (...restArgs) => {
+    if (req.originalUrl.toLowerCase() == '/graphql') {
+      chunks.push(Buffer.from(restArgs[0]));
+    }
+    oldWrite.apply(res, restArgs);
+  };
+
+  res.end = (...restArgs) => {
+    if (restArgs[0]) {
+      if (req.originalUrl.toLowerCase() == '/graphql') {
+        chunks.push(Buffer.from(restArgs[0]));
+      }
+    }
+
+    const body = req.originalUrl.toLowerCase() == '/graphql' ?
+      Buffer.concat(chunks).toString('utf8').slice(1, 2000) :
+      '';
+
+    console.log({
+      time: new Date().toUTCString(),
+      ua: req.headers['user-agent'],
+      fromIP: req.headers['x-forwarded-for'] || req.connection.remoteAddress,
+      referer: req.headers.referer || '',
+      method: req.method,
+      originalUri: req.originalUrl,
+      uri: req.url,
+      requestData: req.body ?? '',
+      responseStatus: res.statusCode,
+      responseData: body ?? '',
+    });
+
+    // console.log(body);
+    oldEnd.apply(res, restArgs);
+  };
+
+  next();
+}
+
+app.use(logResponseBody);
+
 app.use((req, res, next) => {
-  console.log({ url: req.url, body: req.body });
   if (credentials.websiteUsername === '' && credentials.websitePassword === '') return next();
 
   const reject = () => {
