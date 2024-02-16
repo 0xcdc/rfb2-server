@@ -83,7 +83,7 @@ export async function loadHouseholdById(id, date) {
   return households?.[0];
 }
 
-export function updateHousehold({ household }) {
+export async function updateHousehold({ household }) {
   const { id, ...data } = household;
   if (data.clients.length == 0) throw new Error('there must be at least one client');
   if (data.clients.some( c => c.name == '')) throw new Error('every client must have a name');
@@ -92,7 +92,7 @@ export function updateHousehold({ household }) {
     throw new Error('-1 is not a valid household / client id');
   }
 
-  return database.transaction(async conn => {
+  await database.transaction(async conn => {
     // we handle versioning by start_date / end_date
     // we'll upsert the new data as start_date = today and end_date = 12/31/9999
     // but first, if there is an existing row with end_date=12/31/9999
@@ -113,6 +113,7 @@ update household
     await conn.execute(closeExistingRecordSql, { id, today, sentinal });
 
     await conn.upsert('household', { id, start_date: today, end_date: sentinal, data });
-    return loadHouseholdById(id);
   });
+
+  return loadHouseholdById(id);
 }
