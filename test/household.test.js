@@ -30,31 +30,26 @@ describe('household', () => {
 
   const props = [
     'id',
-    'version',
     'address1',
     'address2',
     'cityId',
     'zip',
     'incomeLevelId',
-    'householdSize',
     'note',
   ];
 
   it('Returns household  with id = 2', done => {
     const query = `{household(id: 2) {
          id
-         version
          address1
          address2
          cityId
          zip
          incomeLevelId
          note
-         householdSize
          clients {
            id
            name
-           householdId
            genderId
            disabled
            refugeeImmigrantStatus
