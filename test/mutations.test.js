@@ -7,62 +7,49 @@ const url = `http://localhost:4000`;
 const request = supertest(url);
 
 describe('mutations', () => {
-  let newHouseholdId = null;
-  let newHouseholdVersion = null;
+  let newHousehold = null;
   const newVisitIds = [];
-  let newClientId = null;
+  let newClient = null;
 
   it('create a new household', done => {
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `mutation{
-      updateHousehold(household:{
-        id: -1,
-        address1: "one",
-        address2: "two",
-        cityId: 1,
-        zip: "98052",
-        incomeLevelId: 1,
-        latlng: "",
-        note: "three"
-      }) {
+      createNewHousehold {
         id
-        version
         address1
         address2
         cityId
         zip
         incomeLevelId
         note
+        clients { id }
       }
     }` })
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
         should.exist(res.body.data);
-        should.exist(res.body.data.updateHousehold);
+        should.exist(res.body.data.createNewHousehold);
 
-        res.body.data.updateHousehold.should.have.property('id');
-        res.body.data.updateHousehold.should.have.property('version');
-        res.body.data.updateHousehold.should.have.property('address1');
-        res.body.data.updateHousehold.should.have.property('address2');
-        res.body.data.updateHousehold.should.have.property('cityId');
-        res.body.data.updateHousehold.should.have.property('zip');
-        res.body.data.updateHousehold.should.have.property('incomeLevelId');
-        res.body.data.updateHousehold.should.have.property('note');
+        newHousehold = res.body.data.createNewHousehold;
 
-        res.body.data.updateHousehold.id.should.not.equal(-1);
-        res.body.data.updateHousehold.id.should.not.equal(1);
-        res.body.data.updateHousehold.version.should.equal(1);
-        res.body.data.updateHousehold.address1.should.equal('one');
-        res.body.data.updateHousehold.address2.should.equal('two');
-        res.body.data.updateHousehold.cityId.should.equal(1);
-        res.body.data.updateHousehold.zip.should.equal('98052');
-        res.body.data.updateHousehold.incomeLevelId.should.equal(1);
-        res.body.data.updateHousehold.note.should.equal('three');
+        newHousehold.should.have.property('id');
+        newHousehold.should.have.property('address1');
+        newHousehold.should.have.property('address2');
+        newHousehold.should.have.property('cityId');
+        newHousehold.should.have.property('zip');
+        newHousehold.should.have.property('incomeLevelId');
+        newHousehold.should.have.property('note');
 
-        newHouseholdId = res.body.data.updateHousehold.id;
-        newHouseholdVersion = res.body.data.updateHousehold.version;
+        newHousehold.id.should.not.equal(-1);
+        newHousehold.id.should.not.equal(1);
+        newHousehold.address1.should.equal('');
+        newHousehold.address2.should.equal('');
+        newHousehold.cityId.should.equal(0);
+        newHousehold.zip.should.equal('');
+        newHousehold.incomeLevelId.should.equal(0);
+        newHousehold.note.should.equal('');
 
         done();
       });
@@ -72,16 +59,16 @@ describe('mutations', () => {
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{
-      visitsForHousehold(householdId: ${newHouseholdId}) {
+      visitsForHousehold(householdId: ${newHousehold.id}) {
         id
         date
         householdId
-        householdVersion
       }
     }` })
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
+        if (res.body.errors) done(res.body.errors[0].message);
         should.exist(res.body.data);
         should.exist(res.body.data.visitsForHousehold);
         res.body.data.visitsForHousehold.should.have.lengthOf(0);
@@ -90,38 +77,139 @@ describe('mutations', () => {
       });
   });
 
-  it('update the new household', done => {
+  it('create a new client', done => {
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `mutation{
-      updateHousehold(household:{
-        id: ${newHouseholdId},
-        address1: "four",
-        address2: "five",
-        cityId: 2,
-        zip: "98008",
-        incomeLevelId: 2,
-        note: "six",
-        latlng: "",
-      }) {
-        id
-        version
-        address1
-        address2
-        cityId
-        zip
-        incomeLevelId
-        note
-      }
-    }` })
+      .send({ query: `mutation {
+  newClient:createNewClient {
+    id
+    name
+    disabled
+    birthYear
+    genderId
+    refugeeImmigrantStatus
+    speaksEnglish
+    militaryStatusId
+    ethnicityId
+    phoneNumber
+    raceId
+  }
+}` })
       .expect(200)
       .end((err, res) => {
         if (err) return done(err);
         should.exist(res.body.data);
+        should.exist(res.body.data.newClient);
+
+        ({ newClient } = res.body.data);
+
+        newClient.id.should.not.equal(-1);
+        newClient.id.should.not.equal(0);
+        newClient.id.should.not.equal(1);
+
+        done();
+      });
+  });
+
+  it('try and update the new household w/o the new client', done => {
+    newHousehold.address1 = 'four';
+    newHousehold.address2 = 'five';
+    newHousehold.cityId = 2;
+    newHousehold.zip = '98008';
+    newHousehold.incomeLevelId = 2;
+    newHousehold.note = 'six';
+
+    const query = `
+mutation saveHouseholdChanges($household: HouseholdInput!){
+  updateHousehold(household: $household) {
+    id
+    address1
+    address2
+    cityId
+    zip
+    incomeLevelId
+    note
+  }
+}`;
+    const variables = { household: newHousehold };
+    request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
+      .send({ query, variables })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        should.exist(res.body.errors);
+        res.body.errors.length.should.be.greaterThan(0);
+        should.exist(res.body.errors[0].message);
+
+        res.body.errors[0].message.should.equal('there must be at least one client');
+
+        done();
+      });
+  });
+
+  it('try and update the new household w/ the new client but w/o a name', done => {
+    newHousehold.clients.push(newClient);
+
+    const query = `
+mutation saveHouseholdChanges($household: HouseholdInput!){
+  updateHousehold(household: $household) {
+    id
+    address1
+    address2
+    cityId
+    zip
+    incomeLevelId
+    note
+  }
+}`;
+    const variables = { household: newHousehold };
+    request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
+      .send({ query, variables })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+
+        should.exist(res.body.errors);
+        res.body.errors.length.should.be.greaterThan(0);
+        should.exist(res.body.errors[0].message);
+
+        res.body.errors[0].message.should.equal('every client must have a name');
+
+        done();
+      });
+  });
+
+  it('update the new household w/ the new client', done => {
+    newClient.name = 'bob';
+
+    const query = `
+mutation saveHouseholdChanges($household: HouseholdInput!){
+  updateHousehold(household: $household) {
+    id
+    address1
+    address2
+    cityId
+    zip
+    incomeLevelId
+    note
+  }
+}`;
+    const variables = { household: newHousehold };
+    request.post('/graphql')
+      .auth(credentials.websiteUsername, credentials.websitePassword)
+      .send({ query, variables })
+      .expect(200)
+      .end((err, res) => {
+        if (err) return done(err);
+        if (res.body.errors) done(res.body.errors[0].message);
+
+        should.exist(res.body.data);
         should.exist(res.body.data.updateHousehold);
 
         res.body.data.updateHousehold.should.have.property('id');
-        res.body.data.updateHousehold.should.have.property('version');
         res.body.data.updateHousehold.should.have.property('address1');
         res.body.data.updateHousehold.should.have.property('address2');
         res.body.data.updateHousehold.should.have.property('cityId');
@@ -129,8 +217,7 @@ describe('mutations', () => {
         res.body.data.updateHousehold.should.have.property('incomeLevelId');
         res.body.data.updateHousehold.should.have.property('note');
 
-        res.body.data.updateHousehold.id.should.equal(newHouseholdId);
-        res.body.data.updateHousehold.version.should.equal(2);
+        res.body.data.updateHousehold.id.should.equal(newHousehold.id);
         res.body.data.updateHousehold.address1.should.equal('four');
         res.body.data.updateHousehold.address2.should.equal('five');
         res.body.data.updateHousehold.cityId.should.equal(2);
@@ -138,7 +225,6 @@ describe('mutations', () => {
         res.body.data.updateHousehold.incomeLevelId.should.equal(2);
         res.body.data.updateHousehold.note.should.equal('six');
 
-        newHouseholdVersion = res.body.data.updateHousehold.version;
 
         done();
       });
@@ -148,11 +234,10 @@ describe('mutations', () => {
     request.post('/graphql')
       .auth(credentials.websiteUsername, credentials.websitePassword)
       .send({ query: `{
-      visitsForHousehold(householdId: ${newHouseholdId}) {
+      visitsForHousehold(householdId: ${newHousehold.id}) {
         id
         date
         householdId
-        householdVersion
       }
     }` })
       .expect(200)
@@ -166,209 +251,12 @@ describe('mutations', () => {
       });
   });
 
-  it('update the new household in place', done => {
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `mutation{
-      updateHousehold(household:{
-        id: ${newHouseholdId},
-        address1: "four",
-        address2: "five",
-        cityId: 2,
-        zip: "98008",
-        incomeLevelId: 2,
-        note: "six",
-        latlng: "",
-      }, inPlace: true) {
-        id
-        version
-        address1
-        address2
-        cityId
-        zip
-        incomeLevelId
-        note
-      }
-    }` })
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.updateHousehold);
-
-        res.body.data.updateHousehold.should.have.property('id');
-        res.body.data.updateHousehold.should.have.property('version');
-        res.body.data.updateHousehold.should.have.property('address1');
-        res.body.data.updateHousehold.should.have.property('address2');
-        res.body.data.updateHousehold.should.have.property('cityId');
-        res.body.data.updateHousehold.should.have.property('zip');
-        res.body.data.updateHousehold.should.have.property('incomeLevelId');
-        res.body.data.updateHousehold.should.have.property('note');
-
-        res.body.data.updateHousehold.id.should.equal(newHouseholdId);
-        res.body.data.updateHousehold.version.should.equal(2);
-        res.body.data.updateHousehold.address1.should.equal('four');
-        res.body.data.updateHousehold.address2.should.equal('five');
-        res.body.data.updateHousehold.cityId.should.equal(2);
-        res.body.data.updateHousehold.zip.should.equal('98008');
-        res.body.data.updateHousehold.incomeLevelId.should.equal(2);
-        res.body.data.updateHousehold.note.should.equal('six');
-
-        newHouseholdVersion = res.body.data.updateHousehold.version;
-
-        done();
-      });
-  });
-
-  it('create a new client', done => {
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `
-      mutation {
-        updateClient(
-          client: {
-            id: -1,
-            householdId: ${newHouseholdId},
-            name: "one",
-            raceId: 1,
-            disabled: 1,
-            birthYear: "2000",
-            genderId: 1,
-            refugeeImmigrantStatus: 1,
-            speaksEnglish: 1,
-            militaryStatusId: 1,
-            ethnicityId: 1,
-            phoneNumber: ""}) {
-              id
-              householdId
-              name
-              raceId
-              disabled
-              birthYear
-              genderId
-              refugeeImmigrantStatus
-              speaksEnglish
-              militaryStatusId
-              ethnicityId
-            }
-          }
-       ` })
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.updateClient);
-
-        res.body.data.updateClient.should.have.property('id');
-        res.body.data.updateClient.should.have.property('householdId');
-        res.body.data.updateClient.should.have.property('name');
-        res.body.data.updateClient.should.have.property('raceId');
-        res.body.data.updateClient.should.have.property('disabled');
-        res.body.data.updateClient.should.have.property('birthYear');
-        res.body.data.updateClient.should.have.property('genderId');
-        res.body.data.updateClient.should.have.property('refugeeImmigrantStatus');
-        res.body.data.updateClient.should.have.property('speaksEnglish');
-        res.body.data.updateClient.should.have.property('militaryStatusId');
-        res.body.data.updateClient.should.have.property('ethnicityId');
-
-        res.body.data.updateClient.id.should.not.equal(-1);
-        res.body.data.updateClient.householdId.should.equal(newHouseholdId);
-        res.body.data.updateClient.name.should.equal('one');
-        res.body.data.updateClient.raceId.should.equal(1);
-        res.body.data.updateClient.disabled.should.equal(1);
-        res.body.data.updateClient.birthYear.should.equal('2000');
-        res.body.data.updateClient.genderId.should.equal(1);
-        res.body.data.updateClient.refugeeImmigrantStatus.should.equal(1);
-        res.body.data.updateClient.speaksEnglish.should.equal(1);
-        res.body.data.updateClient.militaryStatusId.should.equal(1);
-        res.body.data.updateClient.ethnicityId.should.equal(1);
-
-        newHouseholdVersion += 1;
-        newClientId = res.body.data.updateClient.id;
-
-        done();
-      });
-  });
-
-  it('update the new client', done => {
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `
-      mutation {
-        updateClient(
-          client: {
-            id: ${newClientId},
-            householdId: ${newHouseholdId},
-            name: "two",
-            raceId: 2,
-            disabled: 0,
-            birthYear: "2001",
-            genderId: 2,
-            refugeeImmigrantStatus: 0,
-            speaksEnglish: 0,
-            militaryStatusId: 2,
-            ethnicityId: 2,
-            phoneNumber: "123"}) {
-              id
-              householdId
-              name
-              raceId
-              disabled
-              birthYear
-              genderId
-              refugeeImmigrantStatus
-              speaksEnglish
-              militaryStatusId
-              ethnicityId
-              phoneNumber
-            }
-          }
-       ` })
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.updateClient);
-
-        res.body.data.updateClient.should.have.property('id');
-        res.body.data.updateClient.should.have.property('householdId');
-        res.body.data.updateClient.should.have.property('name');
-        res.body.data.updateClient.should.have.property('raceId');
-        res.body.data.updateClient.should.have.property('disabled');
-        res.body.data.updateClient.should.have.property('birthYear');
-        res.body.data.updateClient.should.have.property('genderId');
-        res.body.data.updateClient.should.have.property('refugeeImmigrantStatus');
-        res.body.data.updateClient.should.have.property('speaksEnglish');
-        res.body.data.updateClient.should.have.property('militaryStatusId');
-        res.body.data.updateClient.should.have.property('ethnicityId');
-        res.body.data.updateClient.should.have.property('phoneNumber');
-
-        res.body.data.updateClient.id.should.equal(newClientId);
-        res.body.data.updateClient.householdId.should.equal(newHouseholdId);
-        res.body.data.updateClient.name.should.equal('two');
-        res.body.data.updateClient.raceId.should.equal(2);
-        res.body.data.updateClient.disabled.should.equal(0);
-        res.body.data.updateClient.birthYear.should.equal('2001');
-        res.body.data.updateClient.genderId.should.equal(2);
-        res.body.data.updateClient.refugeeImmigrantStatus.should.equal(0);
-        res.body.data.updateClient.speaksEnglish.should.equal(0);
-        res.body.data.updateClient.militaryStatusId.should.equal(2);
-        res.body.data.updateClient.ethnicityId.should.equal(2);
-        res.body.data.updateClient.phoneNumber.should.equal('123');
-
-        newHouseholdVersion += 1;
-
-        done();
-      });
-  });
-
   it('record a visit', done => {
     const query = `
-      mutation { recordVisit(householdId:${newHouseholdId}) {
+      mutation { recordVisit(householdId:${newHousehold.id}) {
         id
         date
         householdId
-        householdVersion
       }
     }`;
     request.post('/graphql')
@@ -382,11 +270,9 @@ describe('mutations', () => {
 
         res.body.data.recordVisit.should.have.property('id');
         res.body.data.recordVisit.should.have.property('householdId');
-        res.body.data.recordVisit.should.have.property('householdVersion');
         res.body.data.recordVisit.should.have.property('date');
 
-        res.body.data.recordVisit.householdId.should.equal(newHouseholdId);
-        res.body.data.recordVisit.householdVersion.should.equal(newHouseholdVersion);
+        res.body.data.recordVisit.householdId.should.equal(newHousehold.id);
 
         newVisitIds.push(res.body.data.recordVisit.id);
 
@@ -403,7 +289,6 @@ describe('mutations', () => {
         id
         date
         householdId
-        householdVersion
       }
     }`;
     request.post('/graphql')
@@ -417,103 +302,7 @@ describe('mutations', () => {
 
         res.body.data.deleteVisit.should.have.property('id');
         res.body.data.deleteVisit.should.have.property('householdId');
-        res.body.data.deleteVisit.should.have.property('householdVersion');
         res.body.data.deleteVisit.should.have.property('date');
-
-        done();
-      });
-  });
-
-  it('update the new client inPlace', done => {
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query: `
-      mutation {
-        updateClient(
-          client: {
-            id: ${newClientId},
-            householdId: ${newHouseholdId},
-            name: "two",
-            raceId: 2,
-            disabled: 0,
-            birthYear: "2001",
-            genderId: 2,
-            refugeeImmigrantStatus: 0,
-            speaksEnglish: 0,
-            militaryStatusId: 2,
-            ethnicityId: 2,
-            phoneNumber: "123"},
-            inPlace: true) {
-              id
-              householdId
-              name
-              raceId
-              disabled
-              birthYear
-              genderId
-              refugeeImmigrantStatus
-              speaksEnglish
-              militaryStatusId
-              ethnicityId
-              phoneNumber
-            }
-          }
-       ` })
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.updateClient);
-
-        res.body.data.updateClient.id.should.equal(newClientId);
-        res.body.data.updateClient.householdId.should.equal(newHouseholdId);
-
-        done();
-      });
-  });
-
-  it('household version should not be updated after inplace client update', done => {
-    const query = `{household(id: ${newHouseholdId}) {
-         id,
-         version
-       }}`;
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query })
-      .expect(200)
-      .end((err, res) => {
-      // res will contain array with one user
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.household );
-        should.exist(res.body.data.household.version);
-
-        res.body.data.household.version.should.equal(newHouseholdVersion);
-        done();
-      });
-  });
-
-
-  it('delete a client', done => {
-    const query = `
-      mutation { deleteClient(
-        id:${newClientId},
-      ) {
-        id
-        name
-      }
-    }`;
-    request.post('/graphql')
-      .auth(credentials.websiteUsername, credentials.websitePassword)
-      .send({ query })
-      .expect(200)
-      .end((err, res) => {
-        if (err) return done(err);
-        should.exist(res.body.data);
-        should.exist(res.body.data.deleteClient);
-
-        res.body.data.deleteClient.should.have.property('id');
-        res.body.data.deleteClient.should.have.property('name');
 
         done();
       });
