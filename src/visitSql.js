@@ -100,6 +100,7 @@ select *
             visitYear - birthYear;
 
         c.age = age;
+        c.clientId = c.id;
       });
 
       return {
