@@ -28,7 +28,6 @@ export const typeDefs = buildSchema(`
     age: Int
     birthYear: String!
     clientId: Int!
-    date: String!,
     disabled: Int!
     ethnicityId: Int!
     genderId: Int!
