@@ -55,7 +55,11 @@ export function deleteVisit(id) {
       if (rows.length === 0) {
         throw new Error(`could not find a visit with id: ${id}`);
       }
-      return database.delete('visit', { id })
+      const sql = `
+delete
+  from visit
+  where id = :id`;
+      return database.execute(sql, { id })
         .then( () => rows[0]);
     });
 }
