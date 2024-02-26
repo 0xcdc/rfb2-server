@@ -1,5 +1,5 @@
+import database, { whereClause } from './database.js';
 import { DateTime } from 'luxon';
-import database from './database.js';
 import { loadAllCities } from './citySql.js';
 
 export async function createNewHousehold() {
@@ -34,13 +34,11 @@ export async function createNewClient() {
   };
 }
 
-async function selectHouseholds({ id, date }) {
-  date = date ? date : '9999-12-31';
-  const idSql = !id ? '' : `
-  and id = :id`;
-
+async function selectHouseholds(whereFilters) {
   const householdPromise = database.all( `
-select h.*, coalesce(last_visit, '') as lastVisit
+select h.*,
+  cast(h.start_date as char) as startDate, cast(h.end_date as char) as endDate,
+  coalesce(cast(last_visit as char), '') as lastVisit
 from household h
 left join (
   select householdId, max(date) as last_visit
@@ -48,9 +46,8 @@ left join (
   group by householdId
 ) as v
   on v.householdId = h.id
-where end_date = :date
-  ${idSql}
-`, { id, date }
+${whereClause(whereFilters)}
+`, whereFilters
   );
 
   const citiesPromise = loadAllCities();
@@ -68,7 +65,7 @@ where end_date = :date
 }
 
 export async function loadAllHouseholds(ids) {
-  const households = await selectHouseholds({});
+  const households = await selectHouseholds({ end_date: '9999-12-31' });
   if (ids.length == 0) return households;
 
   const householdMap = new Map(
@@ -79,7 +76,8 @@ export async function loadAllHouseholds(ids) {
 }
 
 export async function loadHouseholdById(id, date) {
-  const households = await selectHouseholds({ id, date });
+  date ??= '9999-12-31';
+  const households = await selectHouseholds({ id, end_date: date });
   return households?.[0];
 }
 
@@ -100,7 +98,7 @@ export async function updateHousehold({ household }) {
     // UNLESS that row's start date is today
     // (i.e. we've already updated the client today so we can update "inplace")
 
-    const today = DateTime.now().toISODate();
+    const today = DateTime.now().setZone('America/Los_Angeles').toISODate();
     const sentinal = '9999-12-31';
 
     const closeExistingRecordSql = `
@@ -116,4 +114,9 @@ update household
   });
 
   return loadHouseholdById(id);
+}
+
+
+export async function loadHouseholdHistory() {
+  return selectHouseholds();
 }
