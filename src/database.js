@@ -1,6 +1,17 @@
 import credentials from '../credentials.js';
 import mysql from 'mysql2';
 
+export function whereClause(whereFilters) {
+  if (!whereFilters) return '';
+
+  const cols = Object.keys(whereFilters);
+  const whereClause = cols.length == 0 ?
+    '' :
+    `
+WHERE ${cols.map( c => `${c} = :${c}`).join('\n    AND ')}`;
+  return whereClause;
+}
+
 class LoggingConnection {
   constructor(conn) {
     if (!conn) throw Error('connection needed');
@@ -24,40 +35,23 @@ class LoggingConnection {
 
   execute(sql, params) {
     const p = params || {};
-    console.log(sql);
-    console.log(`parameters: `, p);
+    const logInfo = { sql, parameters: p };
     const start = new Date();
     return this.connection.execute(sql, p)
       .then( value => {
-        const end = new Date();
-        const duration = end - start;
-        console.log(`execution time (ms): ${duration}`);
         return value;
       })
-      .catch(err => console.error(err));
-  }
-
-  getMaxVersion(tableName, id) {
-    return this.all(`
-SELECT  COALESCE(MAX(version), 1) AS version
-FROM  ${tableName}
-WHERE  id = :id
-FOR UPDATE
-`,
-    { id }
-    ).then( rows => rows[0].version);
-  }
-
-  delete(tablename, { id, version }) {
-    const isVersioned = version && true;
-    const versionSQL = isVersioned ? 'and version = :version' : '';
-    return this.execute(
-      `
-      delete from ${tablename}
-        where id = :id
-          ${versionSQL}`,
-      { id, version }
-    );
+      .catch(err => logInfo.error = err)
+      .finally( () => {
+        const end = new Date();
+        const duration = end - start;
+        logInfo.executionTimeMilliSecs = duration;
+        if (logInfo.error) {
+          console.error(logInfo);
+        } else {
+          console.log(logInfo);
+        }
+      });
   }
 
   release() {
@@ -95,9 +89,7 @@ FOR UPDATE
     const sql = `
 UPDATE ${tablename}
   SET ${valueColumns.map( k => `${k}=:${k}`).join(',\n      ')}
-  WHERE ${keyColumns.map( k => `${k}=:${k}`).join('\n    AND ')}
-
-`;
+  ${whereClause(keyColumns)}`;
     return this.execute(sql, { ...keys, ...values });
   }
 
@@ -133,12 +125,8 @@ class Database {
     return this.withConnection( conn => conn.all(sql, params));
   }
 
-  delete(tablename, { id, version }) {
-    return this.withConnection( conn => conn.delete(tablename, { id, version }));
-  }
-
-  getMaxVersion(tableName, id) {
-    return this.withConnection( conn => conn.getMaxVersion(tableName, id));
+  execute(sql, params) {
+    return this.withConnection( conn => conn.execute(sql, params));
   }
 
   transaction(fn) {
