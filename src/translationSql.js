@@ -1,4 +1,4 @@
-import database from './database.js';
+import database, { whereClause } from './database.js';
 
 const English = 0;
 
@@ -21,27 +21,24 @@ async function loadTranslation({ set, id, languageId }) {
   // - ensure that the specified 'set' (aka tablename) is one of the tables allowed
   // security check
   await validateSet(set);
-  const [languageField, tableName, languageFilter, params] = languageId == English ?
+  const [languageField, tableName, filters] = languageId == English ?
     [
       `${English} as languageId`,
       set,
-      '',
-      { id, set },
+      { id },
     ] :
     [
       'languageId',
       `${set}_translation`,
-      'AND languageId = :languageId',
-      { id, languageId, set },
+      { id, languageId },
     ];
 
   const sql = `
 SELECT :set as \`set\`, id, ${languageField}, value
 FROM ${tableName}
-WHERE id = :id
-${languageFilter}`;
+${whereClause(filters)}`;
 
-  return database.all(sql, params).then( rows => rows?.[0] );
+  return database.all(sql, { ...filters, set }).then( rows => rows?.[0] );
 }
 
 export async function loadAllTranslations() {
@@ -52,7 +49,7 @@ export async function loadAllTranslations() {
     .map( name => `
 SELECT '${name}' as \`set\`, '' as tag, id, ${English} as languageId, value
   FROM ${name}
-UNION ALL 
+UNION ALL
 SELECT '${name}' as \`set\`, '' as tag, id, languageId, value
   from ${name}_translation
 `);
@@ -101,7 +98,11 @@ export async function updateTranslation({ translation }) {
       throw Error('cannot delete an English translation');
     }
 
-    return database.delete(tableName, keys).then( () => null);
+    return database.execute(`
+delete
+  from translation
+  where id = {id}
+    and languageId = {languageId}`, keys).then( () => null);
   } else {
     const values = { value };
 
