@@ -1,20 +1,13 @@
+import database, { whereClause } from './database.js';
 import { DateTime } from 'luxon';
-import database from './database.js';
 
 const selectSql = `SELECT id, householdId, cast(date as char) as date`;
 
 function selectVisits(filters) {
-  const filterSql = !filters ? '' : `
-WHERE ` +
-    Object
-      .keys(filters)
-      .map( key => `${key} = :${key}`).
-      join('\n  AND');
-
   return database.all(`
 ${selectSql}
 FROM visit
-${filterSql} `,
+${whereClause(filters)} `,
   filters
   );
 }
@@ -67,49 +60,20 @@ export function deleteVisit(id) {
     });
 }
 
-export async function loadHouseholdVisits(year) {
-  const firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
-  const lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
-  const sql = `
-select *
-  from household_visit
+export async function loadVisits(year) {
+  const params = {};
+  let sql = `
+${selectSql}
+from visit v`;
+  if (year) {
+    params.firstDay = DateTime.fromObject({ year, month: 1, day: 1 }).toISODate();
+    params.lastDay = DateTime.fromObject({ year, month: 12, day: 31 }).toISODate();
+
+    sql += `
   where date >= :firstDay
-    and date <= :lastDay
-  order by date
-`;
-
-  const householdVisits = await database.all(sql, { firstDay, lastDay });
-
-  // we need to augment homeless and age
-  return householdVisits
-    .map( hv => {
-      const { householdId, data, visitId, date } = hv;
-      const { clients, ...householdData } = data;
-
-      const homeless = householdData.address1 == '' ? 1 : 0;
-
-      clients.forEach( c => {
-        const birthYear = parseInt(c.birthYear, 10);
-        const visitYear = DateTime.fromISO(date).year;
-
-        const age =
-          isNaN(birthYear) ||
-          birthYear < 1900 ||
-          birthYear > visitYear ?
-            null :
-            visitYear - birthYear;
-
-        c.age = age;
-        c.clientId = c.id;
-      });
-
-      return {
-        householdId,
-        visitId,
-        date,
-        clients,
-        ...householdData,
-        homeless,
-      };
-    });
+    and date <= :lastDay `;
+  }
+  sql += `
+  order by date `;
+  return database.all(sql, params);
 }
