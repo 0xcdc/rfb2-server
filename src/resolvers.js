@@ -1,8 +1,8 @@
 import {
   createNewClient, createNewHousehold,
-  loadAllHouseholds, loadHouseholdById,
+  loadAllHouseholds, loadHouseholdById, loadHouseholdHistory,
   updateHousehold } from './householdSql.js';
-import { deleteVisit, loadHouseholdVisits, recordVisit, visitsForHousehold } from './visitSql.js';
+import { deleteVisit, loadVisits, recordVisit, visitsForHousehold } from './visitSql.js';
 import { loadAllLanguages, loadAllTranslations, loadTranslationTables, updateTranslation } from './translationSql.js';
 import { credentials } from '../credentials.js';
 import database from './database.js';
@@ -12,14 +12,16 @@ import { lookupSet } from './lookupTableSql.js';
 
 export const resolvers = {
   // Query:
+  allVisits: args => loadVisits(),
   cities: args => loadAllCities(),
   credentials: args => ({ googleMapsApiKey: credentials.googleMapsApiKey }),
   ethnicities: args => lookupSet('ethnicity'),
   genders: args => lookupSet('gender'),
   googleTranslate: args => googleTranslate(args),
+  historicalHouseholds: args => loadHouseholdHistory(args),
   household: args => loadHouseholdById(args.id, args.date),
   households: args => loadAllHouseholds(args.ids),
-  householdVisitsForYear: args => loadHouseholdVisits(args.year),
+  visitsForYear: args => loadVisits(args.year),
   incomeLevels: args => lookupSet('income_level'),
   languages: args => loadAllLanguages(),
   militaryStatuses: args => lookupSet('militaryStatus'),

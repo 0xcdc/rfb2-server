@@ -22,19 +22,6 @@ export const typeDefs = buildSchema(`
     ethnicityId: Int!
     phoneNumber: String!
     note: String!
-  },
-
-  type ClientVisit {
-    age: Int
-    birthYear: String!
-    clientId: Int!
-    disabled: Int!
-    ethnicityId: Int!
-    genderId: Int!
-    militaryStatusId: Int!
-    raceId: Int!
-    refugeeImmigrantStatus: Int!
-    speaksEnglish: Int!
   }
 
   type Credentials {
@@ -58,17 +45,8 @@ export const typeDefs = buildSchema(`
     city: City!
     location: Location
     lastVisit: String
-  }
-
-  type HouseholdVisit {
-    cityId: Int!
-    date: String!
-    homeless: Int!
-    householdId: Int!
-    incomeLevelId: Int!
-    visitId: Int!
-    zip: String!
-    clients: [ClientVisit]
+    startDate: String!
+    endDate: String!
   }
 
   type Language {
@@ -97,22 +75,24 @@ export const typeDefs = buildSchema(`
   }
 
   type Query {
-    cities: [City],
-    credentials: Credentials,
-    ethnicities: [LookupTable],
-    genders: [LookupTable],
-    googleTranslate(value: String!, code: String!): String,
-    household(id: Int!, date: String): Household,
-    households(ids: [Int!]!): [Household],
-    householdVisitsForYear(year: Int!): [HouseholdVisit],
-    incomeLevels: [LookupTable],
-    languages: [Language],
-    militaryStatuses: [LookupTable],
-    races: [LookupTable],
-    translationSets: [String],
-    translations: [Translation],
-    visitsForHousehold(householdId: Int!): [Visit],
-    yesNos: [LookupTable],
+    allVisits: [Visit]
+    cities: [City]
+    credentials: Credentials
+    ethnicities: [LookupTable]
+    genders: [LookupTable]
+    googleTranslate(value: String!, code: String!): String
+    historicalHouseholds: [Household]
+    household(id: Int!, date: String): Household
+    households(ids: [Int!]!): [Household]
+    visitsForYear(year: Int!): [Visit]
+    incomeLevels: [LookupTable]
+    languages: [Language]
+    militaryStatuses: [LookupTable]
+    races: [LookupTable]
+    translationSets: [String]
+    translations: [Translation]
+    visitsForHousehold(householdId: Int!): [Visit]
+    yesNos: [LookupTable]
    }
 
   input ClientInput {
@@ -154,11 +134,11 @@ export const typeDefs = buildSchema(`
   }
 
   type Mutation {
-    createNewHousehold: Household,
-    createNewClient: Client,
-    deleteVisit(id: Int!): Visit,
-    pullNextKey(entity: String!): Int,
-    recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit,
+    createNewHousehold: Household
+    createNewClient: Client
+    deleteVisit(id: Int!): Visit
+    pullNextKey(entity: String!): Int
+    recordVisit(householdId: Int!, year: Int, month: Int, day: Int): Visit
     updateHousehold(household: HouseholdInput!): Household
     updateTranslation(translation: UpdateTranslationInput): Translation
   }
