@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import { createHandler } from 'graphql-http/lib/use/express';
 import credentials from '../credentials.js';
 import { dirname } from 'path';
@@ -10,6 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+app.use(cookieParser());
 app.use('/graphql', express.json());
 
 function logResponseBody(req, res, next) {
@@ -66,7 +68,10 @@ app.use((req, res, next) => {
     res.sendStatus(401);
   };
 
-  const { authorization } = req.headers;
+  let { authorization } = req.headers;
+  if (!authorization) {
+    ({ authorization } = req.cookies);
+  }
 
   if (!authorization) {
     return reject();
@@ -77,6 +82,13 @@ app.use((req, res, next) => {
   if (! (username === credentials.websiteUsername && password === credentials.websitePassword)) {
     return reject();
   }
+
+  const cookieValue = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
+  const options = {
+    secure: true,
+    maxAge: 1000*60*60*24*30, // 30 days
+  };
+  res.cookie('authorization', cookieValue, options);
 
   return next();
 });
