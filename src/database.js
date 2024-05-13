@@ -89,7 +89,7 @@ class LoggingConnection {
     const sql = `
 UPDATE ${tablename}
   SET ${valueColumns.map( k => `${k}=:${k}`).join(',\n      ')}
-  ${whereClause(keyColumns)}`;
+  ${whereClause(keys)}`;
     return this.execute(sql, { ...keys, ...values });
   }
 
