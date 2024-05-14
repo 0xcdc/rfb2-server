@@ -1,9 +1,9 @@
 export const translations = [
-  [36, 'prompt', 1, '現有家庭成员：'],
-  [36, 'prompt', 2, '현재 가구 구성원:'],
-  [36, 'prompt', 3, 'Текущие члены семьи:'],
-  [36, 'prompt', 4, 'Xubnaha qoyska ee hadda:'],
-  [36, 'prompt', 5, 'Miembros actuales del hogar:'],
-  [36, 'prompt', 6, 'Поточні члени домогосподарства:'],
-  [36, 'prompt', 7, 'Thành viên hộ gia đình hiện tại:'],
+  [37, 'prompt', 1, '继续'],
+  [37, 'prompt', 2, '계속하다'],
+  [37, 'prompt', 3, 'Продолжать'],
+  [37, 'prompt', 4, 'Sii wad'],
+  [37, 'prompt', 5, 'Continuar'],
+  [37, 'prompt', 6, 'Продовжити'],
+  [37, 'prompt', 7, 'Tiếp tục'],
 ];

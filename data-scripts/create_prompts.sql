@@ -34,7 +34,8 @@ insert ignore into prompt (id, tag, value) values
  (33, 'moreClientsPage',  'Are there more members of the household?'),
  (34, 'nextNamePage',     'What is the next person''s name?'),
  (35, 'finishedPage',     'Please return the tablet to the volunteer'),
- (36, 'currentClients',   'Current household members:');
+ (36, 'currentClients',   'Current household members:'),
+ (37, 'continue',         'Continue');
 
 
  insert ignore into prompt_translation (id, languageId, value) values 
