@@ -125,7 +125,7 @@ class Database {
         cert: credentials.cert,
         // Path to your client private key
         key: credentials.key,
-      }
+      },
     });
   }
 
