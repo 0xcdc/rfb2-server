@@ -113,19 +113,8 @@ ${keys.map( k=> `  ${k} = :${k}`).join(',\n      ')}`;
 class Database {
   constructor() {
     this.pool = mysql.createPool({
-      host: credentials.mysqlHost,
-      user: credentials.mysqlUsername,
-      password: credentials.mysqlPassword,
-      database: credentials.mysqlDatabase,
       namedPlaceholders: true,
-      ssl: {
-        // Path to the CA certificate bundle (used to verify the server's certificate)
-        ca: credentials.ca,
-        // Path to your client certificate
-        cert: credentials.cert,
-        // Path to your client private key
-        key: credentials.key,
-      },
+      ...credentials.mysql,
     });
   }
 

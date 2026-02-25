@@ -61,36 +61,44 @@ function logResponseBody(req, res, next) {
 app.use(logResponseBody);
 
 app.use((req, res, next) => {
-  if (credentials.websiteUsername === '' && credentials.websitePassword === '') return next();
-
+  const { username: validUser, password: validPass } = credentials.website;
   const reject = () => {
     res.setHeader('www-authenticate', 'Basic');
     res.sendStatus(401);
   };
 
-  let { authorization } = req.headers;
-  if (!authorization) {
-    ({ authorization } = req.cookies);
+  if (!validUser || !validPass) {
+    console.error('CRITICAL: Website credentials not configured.');
+    return res.status(500).send('Server Configuration Error');
   }
 
-  if (!authorization) {
+  const authValue = req.headers.authorization || req.cookies.authorization;
+
+  if (!authValue || !authValue.startsWith('Basic ')) {
     return reject();
   }
 
-  const [username, password] = Buffer.from(authorization.replace('Basic ', ''), 'base64').toString().split(':');
+  try {
+    const [, base64Credentials] = authValue.split(' ');
+    const [username, password] = Buffer.from(base64Credentials, 'base64').toString().split(':');
+    const validCredentials = (username === validUser && password === validPass);
+    if (!validCredentials) {
+      return reject();
+    }
 
-  if (! (username === credentials.websiteUsername && password === credentials.websitePassword)) {
+    const options = {
+      secure: true,
+      httpOnly: true,
+      maxAge: 1000*60*60*24*30, // 30 days
+      sameSite: 'Lax',
+    };
+    res.cookie('authorization', authValue, options);
+
+    return next();
+  } catch (err) {
+    console.error(err);
     return reject();
   }
-
-  const cookieValue = `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`;
-  const options = {
-    secure: true,
-    maxAge: 1000*60*60*24*30, // 30 days
-  };
-  res.cookie('authorization', cookieValue, options);
-
-  return next();
 });
 
 // Have Node serve the files for our built React app

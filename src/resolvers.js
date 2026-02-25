@@ -14,7 +14,7 @@ export const resolvers = {
   // Query:
   allVisits: args => loadVisits(),
   cities: args => loadAllCities(),
-  credentials: args => ({ googleMapsApiKey: credentials.googleMapsApiKey }),
+  credentials: args => ({ googleMapsApiKey: credentials.google.mapsApiKey }),
   ethnicities: args => lookupSet('ethnicity'),
   genders: args => lookupSet('gender'),
   googleTranslate: args => googleTranslate(args),

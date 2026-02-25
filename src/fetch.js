@@ -21,7 +21,7 @@ const checkStatus = response => {
 export async function geocode(address) {
   const geocodeUrl = new URL(`https://maps.googleapis.com/maps/api/geocode/json`);
   geocodeUrl.searchParams.append('address', address);
-  geocodeUrl.searchParams.append('key', credentials.googleGeoCodeApiKey);
+  geocodeUrl.searchParams.append('key', credentials.google.geoCodeApiKey);
   const response = await fetch(geocodeUrl, {
     method: 'GET',
     headers: {
@@ -57,7 +57,7 @@ export async function graphQL(query, variables) {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
       'Authorization':
-        'Basic ' + Buffer.from(credentials.websiteUsername + ':' + credentials.websitePassword).toString('base64'),
+        'Basic ' + Buffer.from(credentials.website.username + ':' + credentials.website.password).toString('base64'),
     },
     body,
   });
